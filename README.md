@@ -4,6 +4,10 @@ Scale library, that help you add resolution support to your games in love2d!
 Partially, library was inspired by TLfres https://love2d.org/wiki/TLfres
 I was not satisfied with that, so i created my own
 
+# License
+
+Licensed as "Unlicensed" since i don't really care about this stuff
+
 # What it does/how to use:
 
 1 drop library into your main.lua:

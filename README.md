@@ -58,3 +58,6 @@ Provide cursor function, that determine if cursor is touching black bars, so if 
 
 # Demostration video:
 https://www.youtube.com/watch?v=lvDzdOhtt_0
+
+# Other
+under history folder you can find for hisotry purposes, source code for all versions, if they will be released in future

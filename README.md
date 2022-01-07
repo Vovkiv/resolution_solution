@@ -1,36 +1,41 @@
 # Resolution Solution
 Scale library, that help you add resolution support to your games in love2d!
 
+Partially, library was inspired by TLfres https://love2d.org/wiki/TLfres
+I was not satisfied with that, so i created my own
+
 # What it does/how to use:
 
 1 drop library into your main.lua:
 
-local scaling = require("resolution_solution")
+``` local scaling = require("resolution_solution") ```
 
 2 You set game virtual size (that library will use to scale game to)
 
-scaling.setGame(1920, 1080)
+``` scaling.setGame(1920, 1080) ```
 
 3 additionaly configure it, if you need:
 
 set scaling mode:
-scaling.scaleMode = 1 or 2
+``` scaling.scaleMode = 1 or 2 ```
 
 set color for black bars/lines:
-scaling.setColor(1, 1, 1, 0.5)
+``` scaling.setColor(1, 1, 1, 0.5) ```
 
 4 update library
- love.update = function()
-    scaling.update()
- end
- 
+ ```
+love.update = function()
+   scaling.update()
+end
+``` 
 5 draw it
-
+```
 love.draw = function()
     scaling.start()
     
     scaling.stop()
 end
+```
 
 For more info go to source file or demo folder
 demo and source was commented (probably) pretty well, so you shouldn't be losted in this library

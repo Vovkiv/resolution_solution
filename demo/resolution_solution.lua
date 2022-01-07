@@ -1,7 +1,7 @@
 -- at bottom you will find simple "how to setup library" demo and changelog
 
 local scaling = {
-  _URL = "",
+  _URL = "https://github.com/Vovkiv/resolution_solution",
   _VERSION = 1000,
   _LOVE = 11.4,
   _DESCRIPTION = "Scale library, that help you add resolution support to your games in love2d!",

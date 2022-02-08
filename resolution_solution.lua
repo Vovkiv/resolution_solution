@@ -1,8 +1,21 @@
--- at bottom you will find simple "how to setup library" demo and changelog
+-- FYI: this library was designed to do 1 specific thing: scale game from virtual size to entire window;
+-- you don't need to lock window from resizing or do other methods for that;
+-- you can set virtual game size/resolution to 1280x720 and that amount of content will be showed in
+-- window with 1024x600 or 1920x1080;
+-- But that don't mean, that if you hard coded game to 1280x720 and simple do "scaling.setGame(1920, 1080)"
+-- then game will NOT magically works natively at 1920x1080;
+-- You still need manually adapt ui, what player should be able to see in-game world, camera system, etc;
+-- It might sounds silly, but i was recieved messages, where people asked why library not works when
+-- they resized virtual size (which was hard coded to 1 specific size) and game not works correctly;
+-- Luckly, library provide every value that it generates to you, so make sure to read source code of that library to have idea what every value do (every function/value have mostly detailed comments, so read them)
+
+-- TL;DR
+-- At bottom you will find demo, don't miss it, if you have not much idea of what this library do;
+-- There changelog, too;
 
 local scaling = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
-  _VERSION = 1001,
+  _VERSION = 1002,
   _LOVE = 11.4,
   _DESCRIPTION = "Scale library, that help you add resolution support to your games in love2d!",
   -- for simlicity, iternal library name is "scaling"
@@ -302,35 +315,52 @@ scaling.switchDrawBars = function()
 end
 
 scaling.isMouseInside = function()
-  -- with that you can determine if mouse inside scaled area
-  -- not touching black bars
+  -- determine if cursor inside scaled area and don't touch black bars
+  -- use it when you need detect if cursor touch in-game objects, without false detection on black bars zone;
+  -- always return true if scaling.scalingMode == 2 because game will be scaled to entire window
+  -- so there is no black bars, so you can safely use this function with any scaling method;
 
+  -- check if scale mode is not stretching (2), otherwise return true
+  if scaling.scaleMode == 2 then
+    return true
+  end
+  
   -- get mouse coordinates
   local mouseX, mouseY = love.mouse.getPosition()
   
   -- get offset
-  -- be careful about edge cases where offset may be not integer
-  -- math.floor was used to try to reduce that, but...
-  local xOff, yOff     = math.floor(scaling.xOff), math.floor(scaling.yOff)
+  -- also, as will be mentioned in scaling.toGame, there will some rounding/missmath with float coordinates;
+  -- scaling.toGame don't do anything with that, you should take care about this, but here
+  -- for convenience, this function simply round to nearest integer, which should take care about edge cases;
+  -- if you have any suggestion, etc, feel free add issue ticket/pull request at library's github page, provided in scaling.__URL
+  local xOff, yOff     = math.floor(scaling.xOff + 0.5), math.floor(scaling.yOff + 0.5)
   
   -- get window size
   local windowWidth    = scaling.windowWidth
   local windowHeight   = scaling.windowHeight
 
+  -- check if cursor touch black bars
   if mouseX    >= xOff                 and -- left
      mouseY    >= yOff                 and -- top
      mouseX    <= windowWidth  - xOff  and -- right
      mouseY    <= windowHeight - yOff then -- bottom
-      return true
+     return true
   end
 
+  -- if cursor touch black bars
   return false
 end
 
 scaling.toGame = function(x, y)
-  -- thanslate coordinates from non-scaled to scaled.
+  -- thanslate coordinates from non-scaled to scaled;
   -- e.g translate real mouse coordinates into scaled so you can check
-  -- for example, area to check collisions
+  -- for example, area to check collisions;
+  
+  -- ALSO, NOTE: don't forget about math precition and rounding, because with some scaling value
+  -- using something like "scaling.toGame(love.mouse.getPosition())" coordinates may produce: x -0.31 y -0.10
+  -- when you may expect just 0, 0
+  -- so make sure that you properly threat this kind of edge cases
+  -- because, as you might already guessed, library don't do anything with this, so take care about this yourself
 
   return (x - scaling.xOff) / scaling.scaleWidth, (y - scaling.yOff) / scaling.scaleHeight
 end
@@ -352,6 +382,8 @@ scaling.toScreen = function(x, y)
   -- e.g translate x and y of object inside scaled area
   -- to, for example, set cursor position to that object
   
+  -- Please, if you still don't, read comments under "scaling.toGame"
+  
   return (x * scaling.scaleWidth) + scaling.xOff, (y * scaling.scaleHeight) + scaling.yOff
 end
 
@@ -369,37 +401,201 @@ end
 
 return scaling
 
--- Simple demo:
+-- demo:
 --[[
-  local scaling = require("resolution_solution")
-  
-  love.window.setMode(1024, 600, {resizable = true})
-  -- i strongly recommend make your games window to be resizeable, to prevent frustration for end user
-  -- when they won't able to resize window when they need to;
-  -- after all, this library solve this problem, so there 0 reasons to make window unresizeable
-  
-  scaling.setGame(1280, 720)
-  -- set virtual width and height for game
+local scaling = require("resolution_solution")
 
-  love.graphics.setBackgroundColor(0.5, 0.5, 0.5)
-  local helloWorld = "Hello!\nMy name is " .. tostring(scaling._NAME) .. "\nMy purpose is: " .. tostring(scaling._DESCRIPTION) .. "\nVersion is: " .. tostring(scaling._VERSION)
-  local x, y = (scaling.gameWidth / 2) - love.graphics.newFont():getWidth(helloWorld) / 2, (scaling.gameHeight / 2) - love.graphics.newFont():getHeight(helloWorld) / 2
-  -- it's very overengineered way to print "hello world"
-  
-  love.update = function(dt)
-    scaling.update()
-    --don't forget update library BEFORE doing calculation with it's values
-  end
+-- i highly recommend always allow window resizing for your games
+love.window.setMode(800, 600, {resizable = true})
+love.window.setTitle(scaling._NAME .. " - library demo - v" .. scaling._VERSION)
 
-  love.draw = function()
-    scaling.start()
-    -- with that you can start actual scaling
-    -- everything inside in-between scaling.start() and scaling.stop() will be scaled to virtual width and height
-    
-      love.graphics.print(helloWorld, x, y)
-    
-    scaling.stop()
+-- set game virtual size
+scaling.setGame(1280, 720)
+
+love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
+
+-- rectangle that doesn't move; used to show how use toScreen() function
+local rectangle = {100, 100, 100, 100}
+
+-- timer for sine and cosine
+local timer = 0
+local timerLimit = math.pi * 2
+
+-- is mouse under moving rectangle?
+local underRectangle = false
+
+-- rectangle that moves; used to show how you can implement mouse colission detection
+local x, y, w, h = 200, 200, 20, 20
+local dx, dy, dw, dh = 0, 0, 0, 0
+
+-- generate image via canvas, 1280x720
+local image = love.graphics.newCanvas(1280, 720)
+love.graphics.setCanvas(image)
+love.graphics.push("all")
+love.graphics.setColor(0.5, 0.5, 0.5, 1)
+love.graphics.rectangle("fill", 0, 0, 1280, 720)
+love.graphics.setColor(1, 0, 0, 1)
+love.graphics.setBlendMode("alpha")
+love.graphics.rectangle("fill", 0, 0, 3, 3)
+love.graphics.rectangle("fill", 1277, 0, 3, 3)
+love.graphics.rectangle("fill", 0, 717, 3, 3)
+love.graphics.rectangle("fill", 1277, 717, 3, 3)
+love.graphics.setColor(1, 1, 1, 1)
+love.graphics.setNewFont(24)
+love.graphics.print("x = 0, y = 0", 0, 5)
+love.graphics.print("x = 1280, y = 0", 1070, 0)
+love.graphics.print("x = 0, y = 720", 0, 680)
+love.graphics.print("x = 1280, y = 720", 1050, 680)
+love.graphics.pop()
+love.graphics.setCanvas()
+
+-- instruction message
+local message = ""
+
+-- used to show that callback functions exist in this library
+local gameChangedTimes = 0
+local windowChangedTimes = 0
+
+-- virtual game size changed callback
+scaling.gameChanged = function()
+  gameChangedTimes = gameChangedTimes + 1
+end
+
+--  window size changed callback
+scaling.windowChanged = function()
+  windowChangedTimes = windowChangedTimes + 1
+end
+
+-- keyboard
+love.keypressed = function(key)
+  -- set randow virtual size
+  if key == "q" then scaling.setGame(love.math.random(800, 1920), love.math.random(600, 1080)) end
+  
+  -- switch scale mode
+  if key == "w" then scaling.switchScaleMode() end
+  
+  -- reset virtual size
+  if key == "r" then scaling.setGame(1280, 720) end
+end
+
+local isMouseUnder = function(x, y, w, h)
+  -- function to check if mouse under something
+  
+  -- get scaled to game mouse position
+  local mx, my = scaling.toGame(love.mouse.getPosition())
+  
+  -- check if cursor under
+  if mx >= x     and -- left
+     my >= y     and -- top
+     mx <= x + w and -- right
+     my <= y + h then -- bottom
+    return true
   end
+  
+  return false
+  
+end
+
+love.update = function(dt)
+  -- update library
+  scaling.update()
+  
+  -- count timer
+  timer = timer + dt
+  
+  -- set timer to zero if it reach limit
+  if timer > timerLimit then timer = 0 end
+
+  -- move rectangle in circle
+  -- x coordinate
+  dx = x * math.sin(timer) + 150 + (scaling.gameWidth / 10)
+  
+  -- y coordinate
+  dy = y * math.cos(timer) + 150 + (scaling.gameHeight / 10)
+
+  -- change width and height of moving rectangle
+  dw = w + 200 * math.sin(timer / 2)
+  dh = h + 200 * math.sin(timer / 2)
+
+  -- this will be used to determine is mouse under rectangle in love.draw
+  underRectangle = isMouseUnder(dx, dy, dw, dh)
+  
+  -- message/instructions
+  message = "Does mouse touch moving rectangle?: " .. tostring(underRectangle) .. "\n" ..
+            "Press Q to change virtual size: w" .. tostring(scaling.gameWidth) .. " h" .. tostring(scaling.gameHeight) .. "\n" ..
+            "Press W to change scaling mode: " .. tostring(scaling.scaleMode) .. "\n" ..
+            "Press R to reset virtual size" .. "\n" ..
+            "Times virtual size changed: " .. gameChangedTimes .. "\n" ..
+            "Times window size changed: " .. windowChangedTimes .. "\n" ..
+            "Is mouse inside scaled area?(does it touch black bars?): " .. tostring(scaling.isMouseInside()) .. "\n" ..
+            "Press space to set cursor to moving rectangle" .. "\n" ..
+            "Press S to set non moving rectangle to cursor" .. "\n" ..
+            "Scaled mouse coordinates: x" .. string.format("%.2f", scaling.toGameX(love.mouse.getX())) .. " y: " .. string.format("%.2f", scaling.toGameY(love.mouse.getY())) .. "\n"
+
+  -- set cursor to moving rectangle; that how you can use toScreen() function
+  if love.keyboard.isDown("space") then love.mouse.setPosition(scaling.toScreen(dx, dy)) end
+  
+  -- set non-moving rectangle to cursor; that how you can use toGame() function
+  if love.keyboard.isDown("s") then 
+    rectangle[1] = scaling.toGameX(love.mouse.getX())
+    rectangle[2] = scaling.toGameY(love.mouse.getY())
+    end
+
+end
+  
+love.draw = function()
+  scaling.start()
+  
+  -- set color for example image
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.draw(image)
+  
+  -- change color of moving rectangle, if you touch it with cursor or not
+  if underRectangle then love.graphics.setColor(0, 1, 0) else love.graphics.setColor(1, 0, 0) end
+  
+  -- draw moving rectangle
+  love.graphics.rectangle("line", dx, dy, dw, dh)
+    
+    -- set color for "cursor" which will follow cursor
+    love.graphics.setColor(1, 0.4, 0.9, 1)
+  
+    -- draw "cursor" translated to in-game coordinates
+    love.graphics.rectangle("fill", scaling.toGameX(love.mouse.getX()), scaling.toGameY(love.mouse.getY()), 10, 10)
+    
+    -- set color for non-moving rectangle
+    love.graphics.setColor(0, 0, 0, 1)
+    
+    -- draw non-moving rectangle
+    love.graphics.rectangle("line", unpack(rectangle))
+    
+    scaling.unscaleStart()
+    -- example how you can use "unscale" function
+    -- with that you can draw custom ui, that you don't want to scale with library itself
+    -- or maybe with that create nice rendering for string, in pair with scaling.window/gameChanged
+  
+      -- draw semi-transparent background for "I'm unscaled!" string
+      -- set i't color to black and make transparent
+      love.graphics.setColor(0, 0, 0, 0.5)
+
+      -- get width and height for that background
+  love.graphics.rectangle("fill", scaling.windowWidth - (scaling.xOff + 100), scaling.windowHeight - (scaling.yOff + 100), love.graphics.newFont():getWidth("I'm unscaled!"), love.graphics.newFont():getHeight("I'm unscaled!"))
+    
+      -- draw "I'm unscaled!" string
+      -- add offset for it, so it will be not drawed under black bars
+      love.graphics.setColor(1, 1, 1, 1)
+      love.graphics.print("I'm unscaled!", scaling.windowWidth - (scaling.xOff + 100), scaling.windowHeight - (scaling.yOff + 100))
+      
+    scaling.unscaleStop()
+  scaling.stop()
+  
+    -- draw explaination/instruction
+    love.graphics.setColor(0, 0, 0, 0.4)
+    -- count how much string have new lines and use them to determine height oh string
+  love.graphics.rectangle("fill", 0, 0, love.graphics.newFont():getWidth(message), love.graphics.newFont():getHeight(message) * select(2, string.gsub(message, "\n", "\n")))
+
+  love.graphics.setColor(1, 1, 1, 1) 
+  love.graphics.print(message)
+end
 --]]
 
 -- Changelog:
@@ -412,4 +608,13 @@ Version 1001, 6 february 2022
 * Added comments for "Simple demo"
 * Added more comments for functions and variables in library, to clarify more what the do and don't
 * Fixed typo in "Simple demo"
+
+Version 1002, 8 february 2022
+* Fixed (probably) edge cases in isMouseInside() function, so now it should corectly deal with non integer offsets provided by scaling.xOff/yOff
+* Now isMouseInside() return always true if scale mode is == 2, since there is no black bars in that scaling method
+* Updated isMouseInside() comments
+* Rewrited "Simple demo", now it uses modified demo from github's page (at moment, it takes whoping 193 lines of code, bloat!)
+* Fixed typos, rewrited/rephrased comments
+* Added note in scaling.toGame/scaling.toScreen about rounding/missmathing, make sure check it
+* Added note about scaling.isMouseInside, make sure check it
 --]]

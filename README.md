@@ -12,7 +12,7 @@ Licensed as "Unlicensed" since i don't really care about this stuff
 
 1 drop library into your main.lua:
 
-``` local scaling = require("resolution_solution") ```
+``` local rs = require("resolution_solution") ```
 
 2 You set game virtual size (that library will use to scale game to)
 

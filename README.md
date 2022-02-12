@@ -78,8 +78,10 @@ https://youtu.be/uOTg0r3ywuA
 
 3. Open your Zerobrane config (user.lua, system.lua or Edit -> Preferences -> Settings: User) and paste there:
 
-```api = {
+```
+api = {
   love2d = {"RS_ZBS_API"}
-}```
+}
+```
 
 4. Restart Zerobrane Studio! (and don't forget to set interprier to love)

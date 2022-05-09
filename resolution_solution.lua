@@ -96,10 +96,47 @@ rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0
 -- colors of black bars; red, green, blue, alpha
 rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
 
+--[[
+
+--------------------------------------------------------------
+| ------ | * topLeft            *        topRight * | ------ |
+| ------ |                  topCenterY              | ------ |
+| ------ |                                          | ------ |
+| ------ |                   centerX                | ------ |
+| ------ | * leftCenterX        *    rightCenterX * | ------ |
+| ------ |                   centerY                | ------ |
+| ------ |                                          | ------ |
+| ------ |                  bottomCenterY           | ------ |
+| ------ | * bottomLeft         *     bottomRight * | ------ |
+--------------------------------------------------------------
+
+--]]
+--[[ Coordinates for scaled spots
+rs.centerX, rs.centerY = 0, 0
+rs.topLeft, rs.topRight = 0, 0
+rs.bottomLeft, rs.bottomRight = 0, 0
+rs.leftCenterX, rs.rightCenterX = 0, 0
+rs.topCenterY, rs.bottomCenterY = 0, 0
+
+-- Coordinates for spots on window
+rs.winCenterX, rs.winCenterY = 0, 0
+rs.winTopLeft, rs.winTopRight = 0, 0
+rs.winBottomLeft, rs.winBottomRight = 0, 0
+rs.winLeftCenterX, rs.winRightCenterX = 0, 0
+rs.winTopCenterY, rs.winBottomCenterY = 0, 0
+--]]
+
 rs.update = function()
   -- coordinates of black bars
   local x1, y1, w1, h1
   local x2, y2, w2, h2
+  
+  -- spots
+  local centerX, centerY
+  local topLeft, topRight
+  local bottomLeft, bottomRight
+  local leftCenterX, rightCenterX
+  local topCenterY, bottomCenterY
 
   -- scale for game virtual size
   local scaleWidth, scaleHeight
@@ -125,7 +162,16 @@ rs.update = function()
   -- scale mode
   local scaleMode = rs.scaleMode
 
-  -- aspect scaling method; 1 with black bars
+  --[[ aspect scaling method; 1 with black bars
+  
+  --------------------
+  | * |          | * |
+  | * | Hi there | * |
+  | * |          | * |
+  --------------------
+  
+  --]]
+  
   if scaleMode == 1 then
 
      -- if window height > game height; create black bars on top and bottom
@@ -177,6 +223,15 @@ rs.update = function()
     x2, y2, w2, h2 = 0, 0, 0, 0
     
     xOff, yOff = 0, 0
+    
+    --[[
+    centerX, centerY = gam
+    topLeft, topRight = 0
+    bottomLeft, bottomRight = 0
+    leftCenterX, rightCenterX = 
+    topCenterY, bottomCenterY = 
+    --]]
+    
   end -- end stretch scaling method
 
   -- write all changes to library

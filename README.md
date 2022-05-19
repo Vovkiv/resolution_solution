@@ -57,6 +57,7 @@ end
 # Zerobrane Studio API!
 
 This library supports ZBS auto-completion and tooltips!
+(But, it was not updated for currect v1005, only for v1003.)
 
 # Video demonstration
 

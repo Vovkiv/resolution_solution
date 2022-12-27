@@ -1,18 +1,19 @@
+-- At bottom you will find demo, don't miss it, if you have not much idea of what this library do.
+-- There changelog, too.
+
 local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
-  _VERSION = 2000,
+  _VERSION = 1006,
   _LOVE = 11.4,
   _DESCRIPTION = "Scale library, that help you add resolution support to your games in love2d!",
   _NAME = "Resolution Solution",
   _LICENSE = "The Unlicense",
   _LICENSE_TEXT = [[
 This is free and unencumbered software released into the public domain.
-
 Anyone is free to copy, modify, publish, use, compile, sell, or
 distribute this software, either in source code form or as a compiled
 binary, for any purpose, commercial or non-commercial, and by any
 means.
-
 In jurisdictions that recognize copyright laws, the author or authors
 of this software dedicate any and all copyright interest in the
 software to the public domain. We make this dedication for the benefit
@@ -20,7 +21,6 @@ of the public at large and to the detriment of our heirs and
 successors. We intend this dedication to be an overt act of
 relinquishment in perpetuity of all present and future rights to this
 software under copyright law.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -28,287 +28,74 @@ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
 OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
-
 For more information, please refer to <https://unlicense.org>
 ]]
 }
 
---[[
-  * Alwasy allow window to be resizable. Even if you think this is "unnecessary". It restrict player ability to play in that window/screen size, that they want.
-  * Always add in your game option to change scaleMode. Even if your game have pixel graphics. For example, some people don't like to have big black bars on top, left, right, bottom. Maybe they want just stretched view. Or aspect scale. They might prefer it over clean pixels.
-  * Don't forget to use rs.isMouseInside() when you develop mouse support in game. This function will tell you if cursor is touching bars. You don't want to trigger cursor touch if scaled object behind black bar.
-  * Don't forget to set filter to nearest, if you make pixel graphics. For example, with this: love.graphics.setDefaultFilter("nearest", "nearest").
+-- Callback functions, that will be triggered when window size is changed
+-- with that you can, for example, draw custom ui, which shouldn't be scaled with game
+-- and update it only when window and/or game virtual resolution is changed
+rs.windowChanged = function() end
+-- Callback functions, that will be triggered when game virtual size is changed
+rs.gameChanged = function() end
 
-  (May be updated in future)
---]]
-
--- Configure library with this.
--- Can change all possible settings at once.
--- If you don't need to change any parameter and need simple initilise library, call empty rs.init()
-rs.init = function(options)
-  if type(options) ~= "nil" and type(options) ~= "table" then
-    error(".init: Expected table or nil argument. You passed: " .. type(options) .. ".")
-  end
-
-  options = options or {}
-
-  -- Game width.
-  -- If user passed .width parameter, check it for being number.
-  if options.width then
-      if type(options.width) ~= "number" then
-        error(".init: table field \".width\" should be number. You passed: " .. type(options.width) .. ".")
-      end
-
-      rs.gameWidth  = options.width
-  end
-
-  -- Game height.
-  -- If user passed .height parameter, check it for being number.
-  if options.height then
-      if type(options.height) ~= "number" then
-        error(".init: table field \".height\" should be number. You passed: " .. type(options.height) .. ".")
-      end
-
-      rs.gameHeight  = options.height
-  end
-
-  -- Render bars?
-  -- If user passed .bars parameter, check it for being boolean.
-  if options.bars ~= nil then
-      if type(options.bars) ~= "boolean" then
-        error(".init: table field \".bars\" should be boolean. You passed: " .. type(options.bars) .. ".")
-      end
-
-      rs.bars = options.bars
-  end
-
-  -- Show/hide debug info.
-  -- If user passed .debug parameter, check it for being boolean.
-  if options.debug ~= nil then
-      if type(options.debug) ~= "boolean" then
-        error(".init: table field \".debug\" should be boolean. You passed: " .. type(options.debug) .. ".")
-      end
-
-      rs.debug = options.debug
-  end
-
-  -- Scale mode.
-  -- If user passed .mode parameter, check it for being number.
-  if options.mode then
-      if type(options.mode) ~= "number" then
-        error(".init: table field \".mode\" should be number. You passed: " .. type(options.mode) .. ".")
-      end
-      
-      -- Check for out of bounds
-      if options.mode > 3 or options.mode < 1 then
-        error(".init: table field \".mode\" should be 1, 2 or 3. You passed: " .. tostring(options.mode) .. ".")
-      end
-
-      rs.scaleMode  = options.mode
-  end
-
-  -- Red from RGBA for bars.
-  -- If user passed .r parameter, check it for being number.
-  if options.r then
-      if type(options.r) ~= "number" then
-        error(".init: table field \".r\" should be number. You passed: " .. type(options.r) .. ".")
-      end
-
-      rs.r  = options.r
-  end
-
-  -- Green from RGBA for bars.
-  -- If user passed .g parameter, check it for being number.
-  if options.g then
-      if type(options.g) ~= "number" then
-        error(".init: table field \".g\" should be number. You passed: " .. type(options.g) .. ".")
-      end
-
-      rs.g  = options.g
-  end
-
-  -- Blue from RGBA for bars.
-  -- If user passed .b parameter, check it for being number.
-  if options.b then
-      if type(options.b) ~= "number" then
-        error(".init: table field \".b\" should be number. You passed: " .. type(options.b) .. ".")
-      end
-
-      rs.b  = options.b
-  end
-
-  -- Alpha from RGBA for bars.
-  -- If user passed .a parameter, check it for being number.
-  if options.a then
-      if type(options.a) ~= "number" then
-        error(".init: table field \".a\" should be number. You passed: " .. type(options.a) .. ".")
-      end
-
-      rs.a  = options.a
-  end
-
-  -- Update library with new parameters
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
-end
-
--- 1 aspect scaling (Scale game with bars on top-bottom or left-right. Scale by width and height will be same, but not ideal for pixel graphics.)
--- 2 stretched scaling mode (Scale game to fill entire window. So no bars.)
--- 3 pixel perfect (Scale with integer scaling numbers. It will lead to bars on top and bottom and left and right at same time. Ideal for pixel graphics.)
+-- 1 aspect scaling (default; scale game with black bars on top-bottom or left-right)
+-- 2 stretched scaling mode (scale virtual resolution to fill entire window; may be harmful for pixel art)
+-- (also, just tip: if possible, add in-game option to change scale method (rs.switchScaleMode should be preferred, in case if i add more scaling methods in future)
+-- it might be just preferred for someone to play with stretched graphics; youtubers/streamers may have better experience with your game, for example, if they won't to get rid of black bars, without dealing with obs crop tools or in montage apps)
 rs.scaleMode    = 1
 
-rs.setScaleMode = function(mode)
-  -- Set scale mode by number.
-  -- 1 aspect scaling.
-  -- 2 stretch.
-  -- 3 pixel perfect.
+-- can be used to quicky disable rendering of black bars
+-- for example, to see if game stop objects rendering if they outside of players fov and if it works correctly with black bars offset)
+-- True (default) - render black bars
+-- False - don't render black bars
+-- true is default; when rs.scaleMode is 2, does nothing
+rs.drawBars     = true
 
-    if type(mode) ~= "number" then
-      error(".setScaleMode: Expected number or nil argument. You passed: " .. type(mode) .. ".")
-    else
-        if mode > 3 or mode < 1 then
-          error(".setScaleMode: Expected argument to be 1, 2 or 3. You passed: " .. tostring(mode).. ".")
-        end
-    end
+-- Scale width value, use that for scaling related math
+-- (if rs.scaleMode == 1, rs.scaleWidth and rs.scaleHeight is eqial)
+rs.scaleWidth   = 0
+-- Scale height value, use that for scaling related math
+-- (if rs.scaleMode == 1, rs.scaleWidth and rs.scaleHeight is eqial)
+rs.scaleHeight  = 0
 
-    rs.scaleMode = mode
-    rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
-end
-rs.switchScaleMode = function(side)
-  -- Function to switch in-between scale modes.
-  -- Pass 1 or nil to change mode by +1 (so, if current mode 2, stretching, it become 3, pixel perfect)
-  -- and pass -1 to change backwards.
-  -- You can ise it like this:
-  --[[
-  love.keypressed = function(key)
-    if key == "f3" then
-      rs.switchScaleMode()
-    end
-  end
-  --]]
+-- Virtual width for game, that library will scale to
+rs.gameWidth    = 800
+-- Virtual height for game, that library will scale to
+rs.gameHeight   = 600
 
-  -- Default order is +1.
-  side = side or 1
+-- Window width
+rs.windowWidth  = 800
+-- Window height
+rs.windowHeight = 600
 
-  if type(side) ~= "number" then
-    error(".switchScaleMode: Expected number or nil argument. You passed: " .. type(side) .. ".")
-  else
-    -- You can't pass only 1 and +1 number.
-    if side ~= 1 and side ~= -1 then
-      error(".switchScaleMode: Expected argument should be 1, -1 or nil. You passed: " .. tostring(side))
-    end
-  end
+-- Aspect for virtual game size
+rs.gameAspect   = 0
+-- Aspect for window size
+rs.windowAspect = 0
 
-  rs.scaleMode = rs.scaleMode + side
+-- Width offset, caused by black bars;
+-- There will be 2 black bars on each side, so take into account that
+rs.xOff         = 0
+-- Height offset, caused by black bars;
+-- There will be 2 black bars on each side, so take into account that
+rs.yOff         = 0
 
-  -- Check for limits. It will loop from 1 to 3 and vice-versa.
-  if rs.scaleMode > 3 then rs.scaleMode = 1 end
-  if rs.scaleMode < 1 then rs.scaleMode = 3 end
+-- X, Y, Width, Height for 1st bar;
+-- If bars drawed as left-right then: 1st bar is left; If bars drawed as left-right then 1st is upper
+rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, 0, 0
 
-  -- Since we changed scale mode, we need to re-calculate library data.
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
-end
+-- X, Y, Width, Height for 2nd bar;
+-- If bars drawed as left-right then: 2nd is right; If bars drawed as left-right then 2nd is bottom
+rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0
 
--- Used to turn on/off rendering of bars when rs.drawBars() called.
--- If false, rs.drawBars() will NOT draw bars.
-rs.bars  = true
-
--- Turn on/off bars rendering.
--- Use it like this:
---[[
-love.keypressed = function(key)
-    if key == "f2" then
-      rs.switchBars()
-    end
-end
---]]
-rs.switchBars = function()
-  rs.bars = not rs.bars
-end
-
--- Determine if rs.debugFunc() will show some debug info.
--- If true, then this function will draw debug.
-rs.debug = true
-
--- Place it somewhere in love.draw() and set rs.debug to true, then this function will draw some useful information about library.
--- You can overide this function, but in most cases there no need to.
-rs.debugFunc = function()
--- If debug disabled, there no point in wasting time on rendering debug info.
-  if not rs.debug then return end
-
-  -- Return this colors later.
-  local r, g, b, a = love.graphics.getColor()
-
-  -- Draw background rectangle for text.
-  love.graphics.setColor(0, 0, 0, 0.5)
-  love.graphics.rectangle("fill", 0, 0, 180, 200)
-
-  -- Set fonts.
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.setFont(love.graphics.newFont(12))
-
-  -- Print data.
-  love.graphics.print(rs._NAME .. " v." .. tostring(rs._VERSION), 0, 0)
-  love.graphics.print("gameWidth: " .. tostring(rs.gameWidth), 0, 15)
-  love.graphics.print("gameHeight: " .. tostring(rs.gameHeight), 0, 30)
-  love.graphics.print("scaleWidth: " .. tostring(rs.scaleWidth), 0, 45)
-  love.graphics.print("scaleHeight: " .. tostring(rs.scaleHeight), 0, 60)
-  love.graphics.print("windowWidth: " .. tostring(rs.windowWidth), 0, 75)
-  love.graphics.print("windowHeight: " .. tostring(rs.windowHeight), 0, 90)
-  love.graphics.print("scaleMode: " .. tostring(rs.scaleMode), 0, 105)
-  love.graphics.print("bars: " .. tostring(rs.bars), 0, 120)
-  love.graphics.print("debug: " .. tostring(rs.debug), 0, 135)
-  love.graphics.print("xOff: " .. tostring(rs.xOff), 0, 150)
-  love.graphics.print("yOff: " .. tostring(rs.yOff), 0, 165)
-
-  -- Return colors.
-  love.graphics.setColor(r, g, b, a)
-end
-
--- Turn on/off debug function.
--- Use it like this:
---[[
-love.keypressed = function(key)
-    if key == "f1" then
-      rs.switchDebug()
-    end
-end
---]]
-rs.switchDebug = function()
-  rs.debug = not rs.debug
-end
-
--- Scale width and height value, that library will produce, based on scale mode and ratio between game size and window size.
--- Use this values for scaling related math, such as glue this library with camera libraries, UI library, etc.
-rs.scaleWidth, rs.scaleHeight = 0, 0
-
--- Virtual width and height for game, that library will scale to.
-rs.gameWidth, rs.gameHeight    = 800, 600
-
--- Window size. Can be used instead of love.graphics.getWidth/getHeight functions.
-rs.windowWidth, rs.windowHeight  = 0, 0
-
--- Width and height offsets, caused by scaling. In scale mode 2, will always be 0, 0.
-rs.xOff, rs.yOff = 0, 0
-
--- X, Y, Width, Height for every ractangle-bar, that used to hide something behind offseted areas.
--- It also should be possible, to disable bar rendering via rs.bars = false and using love.graphics.setScissor() with combining
--- rs.getGameZone(), so it will act like PUSH scaling library, where it just draw scaled area to canvas and scale it.
-rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, 0, 0 -- top (1)
-rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0 -- left (2)
-rs.x3, rs.y3, rs.w3, rs.h3 = 0, 0, 0, 0 -- right (3)
-rs.x4, rs.y4, rs.w4, rs.h4 = 0, 0, 0, 0 -- bottom (4)
-
--- Colors of bars: red, green, blue, alpha.
--- Black by default.
+-- colors of black bars; red, green, blue, alpha
 rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
 
--- Coordinates for scaled area, that visible in window. So, if, for example, game width and height is 800x600 and current offsets is x = 10, y = 15
--- then this table will have:
--- x = 10
--- y = 15
--- w = 790
--- h = 585
--- Might be useful for integrating this library with camera libraries, UI libraries, etc.
+-- Coordinates where on screen takes place
+-- piece of scaled game.
+-- (Might be useful for integrating this lib with "gamera" lib or any other camera lib).
+-- (Or for UI libs or just UI drawing when in between rs.unscaleStart and rs.unscaleStop)
 rs.gameZone = {
   x = 0,
   y = 0,
@@ -316,169 +103,184 @@ rs.gameZone = {
   h = 0
   }
 
-rs.resize = function(windowWidth, windowHeight)
--- Everything updates here.
--- Call this function at love.resize and pass arguments to library. Like this:
---[[
-love.resize = function(w, h)
-  rs.resize(w, h)
-end
---]]
+rs.update = function()
+  -- coordinates of black bars
+  local x1, y1, w1, h1
+  local x2, y2, w2, h2
 
-  -- Check if user passed arguments and they are numbers.
-  if type(windowHeight) ~= "number" or type(windowHeight) ~= "number" then
-    error(".resize: Expected 2 arguments, that should be numbers. You passed: " .. type(windowWidth) .. " and " .. type(windowHeight) .. ". Make sure that you pass arguments from love.resize(w, h) to this function.")
-  end
+  -- scale for game virtual size
+  local scaleWidth, scaleHeight
 
-  -- Scale for game virtual size.
-  local scaleWidth, scaleHeight = 0, 0
-  
-  -- Offsets.
-  local xOff, yOff = 0, 0
+  -- offset for black bars
+  local xOff, yOff
 
-  -- Virtual game size.
+  -- virtual game size
   local gameWidth, gameHeight = rs.gameWidth, rs.gameHeight
-  
-  -- Scale mode.
+  -- window size
+  local windowWidth, windowHeight = love.graphics.getWidth(), love.graphics.getHeight()
+
+  -- get aspect of window and virtual game size
+  local gameAspect = gameWidth / gameHeight
+  local windowAspect = windowWidth / windowHeight
+
+  -- check rs.gameChanged() callback
+  local oldGameAspect   = rs.gameAspect
+
+  -- check rs.windowChanged() callback
+  local oldWindowAspect = rs.windowAspect
+
+  -- scale mode
   local scaleMode = rs.scaleMode
-  
-  -- If we in stretch scaling mode.
+
+  -- Game zone
+  local gameZone = rs.gameZone
+
+  if scaleMode == 1 then
+     -- if window height > game height; create black bars on top and bottom
+    if gameAspect > windowAspect then
+      local scale = windowWidth / gameWidth
+
+      local barHeight = math.abs((gameHeight * scale - windowHeight) / 2)
+
+      scaleWidth, scaleHeight = scale, scale
+
+      x1, y1, w1, h1 = 0, 0, windowWidth, barHeight
+      x2, y2, w2, h2 = 0, windowHeight, windowWidth, barHeight * -1
+
+      xOff, yOff = 0, windowHeight / 2 - (scale * gameHeight) / 2
+
+  -- if window width > game width; create bars on left and right sides
+  elseif gameAspect < windowAspect then
+
+      local scale = windowHeight / gameHeight
+
+      local barWidth = math.abs((gameWidth * scale - windowWidth) / 2)
+
+      scaleWidth, scaleHeight = scale, scale
+
+      x1, y1, w1, h1 = 0, 0, barWidth, windowHeight
+      x2, y2, w2, h2 = windowWidth, 0, barWidth * -1, windowHeight
+
+      xOff = windowWidth / 2 - (scale * gameWidth) / 2
+      yOff = 0
+
+    else -- if window and game size equal
+      scaleWidth, scaleHeight = 1, 1
+
+      x1, y1, w1, h1 = 0, 0, 0, 0
+      x2, y2, w2, h2 = 0, 0, 0, 0
+
+      xOff, yOff = 0, 0
+    end -- end aspect scaling method
+
+  end -- end scaleMode == 1
+
+  -- stretch scaling method; 2 which fills entire window
   if scaleMode == 2 then
-    -- We only need to update width and height scale.
+
     scaleWidth = windowWidth / gameWidth
     scaleHeight = windowHeight / gameHeight
 
-  else
-    -- Other scaling methods need to determine scale, based on window and game aspect.
-    local scale = math.min(windowWidth / gameWidth,  windowHeight / gameHeight)
+    x1, y1, w1, h1 = 0, 0, 0, 0
+    x2, y2, w2, h2 = 0, 0, 0, 0
 
-    -- Pixel perfect scaling.
-    if scaleMode == 3 then
-      -- We will floor to nearest int number.
-      -- And we fallback to scale 1, if game size is less then window, so user can see at least something.
-      scale = math.max(math.floor(scale), 1)
-    end
+    xOff, yOff = 0, 0
 
-    -- Update offsets.
-    xOff, yOff = (windowWidth - (scale * gameWidth)) / 2, (windowHeight - (scale * gameHeight)) / 2
-    -- Update scale
-    scaleWidth, scaleHeight = scale, scale
-  end
-  
-  -- Save values to library.
-  -- Bars.
-  rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, windowWidth, yOff                                   --top
-  rs.x2, rs.y2, rs.w2, rs.h2 = 0, yOff, xOff, windowHeight - (yOff * 2)                  -- left
-  rs.x3, rs.y3, rs.w3, rs.h3 = windowWidth - xOff, yOff, xOff, windowHeight - (yOff * 2) -- right
-  rs.x4, rs.y4, rs.w4, rs.h4 = 0, windowHeight - yOff, windowWidth, yOff                 -- bottom
-  
-  -- Offset generated by bars.
+    --[[
+    centerX, centerY = gam
+    topLeft, topRight = 0
+    bottomLeft, bottomRight = 0
+    leftCenterX, rightCenterX = 
+    topCenterY, bottomCenterY = 
+    --]]
+
+  end -- end stretch scaling method
+
+  -- write all changes to library
+
+  -- black bars
+  rs.x1, rs.y1, rs.w1, rs.h1 = x1, y1, w1, h1
+  rs.x2, rs.y2, rs.w2, rs.h2 = x2, y2, w2, h2
+
+  -- offset generated for black bars
   rs.xOff, rs.yOff = xOff, yOff
-  
-  -- Scale.
-  rs.scaleWidth, rs.scaleHeight = scaleWidth, scaleHeight
-  
-  -- Window size.
-  rs.windowWidth, rs.windowHeight = windowWidth, windowHeight
-  
-  -- Game zone.
-  rs.gameZone.x = xOff
-  rs.gameZone.y = yOff
-  rs.gameZone.w = windowWidth - (xOff * 2)
-  rs.gameZone.h = windowHeight - (yOff * 2)
 
-  -- Window size.
+  -- scale
+  rs.scaleWidth, rs.scaleHeight = scaleWidth, scaleHeight
+
+  -- window size
   rs.windowWidth, rs.windowHeight = windowWidth, windowHeight
+
+  -- aspects
+  rs.gameAspect, rs.windowAspect = gameAspect, windowAspect
+
+  -- game zone
+
+  gameZone.x = xOff
+  gameZone.y = yOff
+  gameZone.w = windowWidth - (xOff * 2)
+  gameZone.h = windowHeight - (yOff * 2)
+
+  -- Call rs.gameChanged() if virtual game size is changed
+  if oldGameAspect ~= gameAspect then
+    rs.gameChanged()
+  end
+
+  -- Call rs.windowChanged() if window size is changed
+  if oldWindowAspect ~= windowAspect then
+    rs.windowChanged()
+  end
+
 end
 
 rs.start = function()
   -- Start scaling graphics until rs.stop().
-  -- Everything inside this function will be scaled to fit virtual game size.
-  -- Place it in love.draw() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-  
-    rs.stop()
-  end
-  --]]
+  -- Everything inside this function will be scaled to fit virtual game size
 
-  -- Prepare to scale.
+  -- prepare to scale
   love.graphics.push()
-  
-  -- Reset transformation.
+
+  -- reset transformation
   love.graphics.origin()
 
-  -- Set offset, based on size of bars.
+  -- set offset, based on size of black bars
   love.graphics.translate(rs.xOff, rs.yOff)
-  
-  -- Scale.
+
+  -- scale game
   love.graphics.scale(rs.scaleWidth, rs.scaleHeight)
 end
 
 rs.stop = function()
-  -- Stop scaling caused by rs.start().
-  -- Place it in love.draw() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-  
-    rs.stop()
-  end
-  --]]
+  -- Stop scaling caused by rs.start()
+  -- and draw black bars, if needed.
 
-  -- Stop scaling.
+  -- stop scaling
   love.graphics.pop()
 
-  -- Draw bars.
-  rs.drawBars()
-end
+  rs.drawBlackBars()
+end -- end rs.stop
 
 rs.unscaleStart = function()
   -- Reset scaling with love.origin() until rs.unscaleStop().
-  -- With that you can, for example, draw UI with custom scaling, fonts, etc.
-  -- Place it in-between rs.start() and rs.stop() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-      rs.unscaleStart()
+  -- With that you can, for example, draw ui with custom scaling.
 
-      rs.unscaleStop()
-    rs.stop()
-  end
-  --]]
-  
-  -- Start unscaling.
+  -- start unscaling
   love.graphics.push()
-  
-  -- Reset transformation and scaling.
+
+  -- reset coordinates and scaling
   love.graphics.origin()
 end
 
 rs.unscaleStop = function()
   -- Stop scaling caused by rs.unscaleStart().
-  -- With that you can, for example, draw UI with custom scaling, fonts, etc.
-  -- Place it in-between rs.start() and rs.stop() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-      rs.unscaleStart()
+  -- With that you can, for example, draw ui with custom scaling.
 
-      rs.unscaleStop()
-    rs.stop()
-  end
-  --]]
-
-  -- Stop unscaling.
+  -- stop unscaling
   love.graphics.pop()
 end
 
 rs.setColor = function(r, g, b, a)
-  -- Set color of bars.
-
-  if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" or type(a) ~= "number" then
-      error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".")
-  end
+  -- Set color of black bars.
 
   rs.r = r -- red
   rs.g = g -- green
@@ -487,7 +289,7 @@ rs.setColor = function(r, g, b, a)
 end
 
 rs.getColor = function()
-  -- Get red, green, blue and alpha colors of bars.
+  -- Get red, green, blue and alpha colors of black bars.
 
   return rs.r, -- red
          rs.g, -- green
@@ -497,21 +299,14 @@ end
 
 rs.getGameZone = function()
   -- Scaled zone with real screen coordinates.
-  -- Will return table with:
-  -- x, y, w, h
-  -- Useful to determine scale zone, to build UI.
-
+  -- Will return flat table with:
+  -- x, y, w, h.
   local gameZone = rs.gameZone
-  return {
-    x = gameZone.x, 
-    y = gameZone.y,
-    w = gameZone.w,
-    h = gameZone.h
-  }
+  return {x = gameZone.x, y = gameZone.y, w = gameZone.w, h = gameZone.h}
 end
 
 rs.defaultColor = function()
-  -- Reset colors for bars to default black color.
+  -- Reset colors for black bars to default black opague color.
 
   rs.r = 0 -- red
   rs.g = 0 -- green
@@ -520,62 +315,60 @@ rs.defaultColor = function()
 end
 
 
-rs.drawBars = function()
-  -- Function that will draw bars.
-  -- Can be called manually, if you don't use rs.start() and rs.stop() and scale everything manually somewhere else.
-  
-  -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
-  if rs.scaleMode == 2 then
+rs.drawBlackBars = function()
+  -- Function that will draw back bars.
+  -- Can be called outside of rs.start rs.stop.
+  -- Might be useful when you need just to draw black bars, without scaling via rs.start.
+
+  -- do nothing if we don't need draw bars or we in aspect scaling mode (1; with black bars)
+  if not rs.drawBars or rs.scaleMode ~= 1 then
     return
   end
 
-  -- Can we can draw bars?
-  if not rs.bars then
-      return
-  end
-
-  
-  -- Get colors, that was before rs.stop() function.
+  -- get colors, that was before rs.stop() function
   local r, g, b, a = love.graphics.getColor()
-  
-  -- Prepare to draw bars.
+
+  -- prepare to draw black bars
   love.graphics.push()
-  
-  -- Reset transformation.
+
+  -- reset transformation
   love.graphics.origin()
 
-  -- Set color for bars.
+  -- set color for black bars
   love.graphics.setColor(rs.r, rs.g, rs.b, rs.a)
 
-  -- Draw bars.
-  love.graphics.rectangle("fill", rs.x1, rs.y1, rs.w1, rs.h1) -- top
-  love.graphics.rectangle("fill", rs.x2, rs.y2, rs.w2, rs.h2) -- left
-  love.graphics.rectangle("fill", rs.x3, rs.y3, rs.w3, rs.h3) -- right
-  love.graphics.rectangle("fill", rs.x4, rs.y4, rs.w4, rs.h4) -- bottom
-  
-  -- Return original colors that was before rs.stop()
+  -- draw left or top most
+  love.graphics.rectangle("fill", rs.x1, rs.y1, rs.w1, rs.h1)
+  -- draw right or bottom most
+  love.graphics.rectangle("fill", rs.x2, rs.y2, rs.w2, rs.h2)
+
+  -- return original colors that was before rs.stop()
   love.graphics.setColor(r, g, b, a)
-  
-  -- End bars rendering.
+
+  -- end black bars rendering
   love.graphics.pop()
 end
 
 rs.getScale = function()
-  -- Get width and height scale.
-
+  -- Get scale by width and height
   return rs.scaleWidth, rs.scaleHeight
+end
+
+rs.switchScaleMode = function()
+  -- Function to switch in-between scale modes.
+
+    if rs.scaleMode ~= 1 then 
+      rs.scaleMode = 1 -- aspect mode
+    else
+      rs.scaleMode = 2 -- stretch mode
+    end
 end
 
 rs.setGame = function(width, height)
   -- Set virtual size which game should be scaled to.
-
-  if type(width) ~= "number" or type(height) ~= "number"  then
-      error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".")
-  end
-
+  -- Note: this function doesn't do any validation for incoming arguments.
   rs.gameWidth = width
   rs.gameHeight = height
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
 end
 
 rs.getGame = function()
@@ -590,35 +383,38 @@ rs.getWindow = function()
   return rs.windowWidth, rs.windowHeight
 end
 
-rs.isMouseInside = function()
-  -- Determine if cursor inside scaled area and don't touch bars.
-  -- Use it when you need detect if cursor touch in-game objects, without false detection on bars zone.
-  --Use it like this:
-  --[[
-      love.mousepressed = function(x, y, button, istouch, presses)
-        if rs.isMouseInside and button == 1 then
-          print("Hello, World!")
-        end 
-      end
-  --]]
+rs.switchDrawBars = function()
+  -- Turn of/off rendering for black bars.
 
-  -- If we in stretch mode (1), then there is no bars, so no reasons to waste time on checks,
-  -- since there is no bars. 
+  rs.drawBars = not rs.drawBars
+end
+
+rs.isMouseInside = function()
+  -- Determine if cursor inside scaled area and don't touch black bars
+  -- Use it when you need detect if cursor touch in-game objects, without false detection on black bars zone;
+  -- always return true if rs.scalingMode == 2 because game will be scaled to entire window
+  -- so there is no black bars, so you can safely use this function with any scaling method;
+
+  -- check if scale mode is not stretching (2), otherwise return true
   if rs.scaleMode == 2 then
     return true
   end
-  
-  -- Get mouse coordinates.
+
+  -- get mouse coordinates
   local mouseX, mouseY = love.mouse.getPosition()
-  
-  -- Get offset.
-  local xOff, yOff     = rs.xOff, rs.yOff
-  
-  -- Get window size.
+
+  -- get offset
+  -- also, as will be mentioned in rs.toGame, there will some rounding/missmath with float coordinates;
+  -- rs.toGame don't do anything with that, you should take care about this, but here
+  -- for convenience, this function simply round to nearest integer, which should take care about edge cases;
+  -- if you have any suggestion, etc, feel free add issue ticket/pull request at library's github page, provided in rs.__URL
+  local xOff, yOff     = math.floor(rs.xOff + 0.5), math.floor(rs.yOff + 0.5)
+
+  -- get window size
   local windowWidth    = rs.windowWidth
   local windowHeight   = rs.windowHeight
 
-  -- Check if cursor inside game zone.
+  -- check if cursor touch black bars
   if mouseX    >= xOff                 and -- left
      mouseY    >= yOff                 and -- top
      mouseX    <= windowWidth  - xOff  and -- right
@@ -626,33 +422,20 @@ rs.isMouseInside = function()
      return true
   end
 
-  -- Cursor on bars.
+  -- if cursor touch black bars
   return false
 end
 
 rs.toGame = function(x, y)
   -- Translate coordinates from non-scaled values to scaled;
   -- e.g translate real mouse coordinates into scaled so you can check
-  -- for example, area to check collisions with object and cursor.
-  -- Use it like this:
-  --[[
-love.mousepressed = function(x, y, button, istouch, presses)
-  if RS.isMouseInside() and button == 1 then
-      local mx, my = RS.toGame(love.mouse.getPosition())
-      if mx    >= 100                   and -- left
-         my    >= 100                   and -- top
-         mx    <= 100         +    100  and -- right
-         my    <= 100         +    100  then -- bottom
-        print("You clicked in rectangle of: 100, 100, 100, 100!")
-      end
+  -- for example, area to check collisions with object and cursor;
 
-    end 
-  end
-  --]]
-
-  if type(x) ~= "number" or type(y) ~= "number" then
-    error(".toGame: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".")
-  end
+  -- ALSO, NOTE: don't forget about math precition and rounding, because with some scaling value
+  -- using something like "rs.toGame(love.mouse.getPosition())" coordinates may produce: x -0.31 y -0.10
+  -- when you may expect just 0, 0
+  -- so make sure that you properly threat this kind of edge cases
+  -- because, as you might already guessed, library don't do anything with this, so take care about this yourself
 
   return (x - rs.xOff) / rs.scaleWidth, (y - rs.yOff) / rs.scaleHeight
 end
@@ -660,12 +443,7 @@ end
 rs.toGameX = function(x)
   -- Translate x coordinate from non-scaled to scaled
   -- e.g translate real mouse coordinates into scaled so you can check
-  -- for example, area to check collisions with object and cursor.
-
-  if type(x) ~= "number" then
-    error(".toGameX: Expected argument, that should be number. You passed: " .. type(x) .. ".")
-  end
-
+  -- for example, area to check collisions with object and cursor;
   return (x - rs.xOff) / rs.scaleWidth
 end
 
@@ -674,10 +452,6 @@ rs.toGameY = function(y)
   -- e.g translate real mouse coordinates into scaled so you can check
   -- for example, area to check collisions with object and cursor;
 
-  if type(y) ~= "number" then
-    error(".toGameY: Expected argument, that should be number. You passed: " .. type(y) .. ".")
-  end
-
   return (y - rs.yOff) / rs.scaleHeight
 end
 
@@ -685,22 +459,6 @@ rs.toScreen = function(x, y)
   -- Thanslate coordinates from scaled to non scaled.
   -- e.g translate x and y of object inside scaled area
   -- to, for example, set cursor position to that object
-  -- Use it like this:
-  --[[
-  ingameObject = {x = 200, y = 200}
-  love.draw = function()
-    rs.start()
-    love.graphics.rectangle("fill", ingameObject.x, ingameObject.y, 100, 100)
-    if RS.toGameX(love.mouse.getX()) > ingameObject.x then
-        love.mouse.setPosition(RS.toScreenX(ingameObject.x), love.mouse.getY())
-    end
-    rs.stop()
-  end
-  --]]
-  
-  if type(x) ~= "number" or type(y) ~= "number" then
-    error(".toScreen: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".")
-  end
 
   return (x * rs.scaleWidth) + rs.xOff, (y * rs.scaleHeight) + rs.yOff
 end
@@ -709,10 +467,6 @@ rs.toScreenX = function(x)
   -- Thanslate x coordinate from scaled to non scaled.
   -- e.g translate x of object inside scaled area
   -- to, for example, set cursor position to that object
-  
-  if type(x) ~= "number" then
-    error(".toScreenX: Expected argument, that should be number. You passed: " .. type(x) .. ".")
-  end
 
   return (x * rs.scaleWidth) + rs.xOff
 end
@@ -721,11 +475,7 @@ rs.toScreenY = function(y)
   -- Thanslate y coordinate from scaled to non scaled.
   -- e.g translate y of object inside scaled area
   -- to, for example, set cursor position to that object
-  
-  if type(y) ~= "number" then
-    error(".toScreenY: Expected argument, that should be number. You passed: " .. type(y) .. ".")
-  end
-  
+
   return (y * rs.scaleHeight) + rs.yOff
 end
 
@@ -733,143 +483,176 @@ return rs
 
 -- demo:
 --[[
-rs = require("libs.resolution_solution")
--- Refer ro source code of library, for rs.init() to get full list of avaliable options or their explanation.
--- but in most cases you only need to specify game width/height and default scale mode.
-rs.init({width = 640, height = 480, mode = 3})
--- This function allow you to change color of bars that you will appear in aspect and pixel perfect modes.
--- By default, they will have black color, but you can change it and even make transparent.
--- To change individual color, use rs.r, rs.g, rs.b, rs.a for red, green, blue and alpha.
--- Also rs.getColor() will return 4 arguments with currect colors and rs.defaultColor() will return default black color.
-rs.setColor(0.5, 0.2, 0.2, 0.5)
-
--- Filter, works best for pixeleted raphics.
-love.graphics.setDefaultFilter("nearest", "nearest")
-
--- Make window resizeable. I strongly suggest you to always make window resiable, via this love function or conf.lua
--- After all, this library was designed for this.
+local rs = require("resolution_solution")
+-- i highly recommend always allow window resizing for your games
 love.window.setMode(800, 600, {resizable = true})
--- SHow library name and version in title.
-love.window.setTitle(tostring(rs._NAME .. " v." .. rs._VERSION))
-
--- Example rectangle, that demonstrate how you can implement, for example, mouse collision detection,
--- and other translate functions.
-local rectangle1 = {
-  x = 100,
-  y = 100,
-  w = 100,
-  h = 100,
-  click = 0
-}
-
--- Show/hide rectangle around scaled area. 
-local showGameZone = true
-
--- library was designed to update at love.resize() (it possible to update at love.update(), but it's not something that you want to do),
--- so place it there. Also, side not: never forget to use rs.init() (even if you don't need to change any settings) at least 1 at start of game/scene.
--- This is required since until 1st window resize, library will be not updated, so no scale, no offset, nothing will be calculated.
-love.resize = function(w, h)
-  rs.resize(w, h)
+love.window.setTitle(rs._NAME .. " - library demo - v" .. rs._VERSION)
+-- set game virtual size
+rs.setGame(1280, 720)
+love.graphics.setBackgroundColor(0.1, 0.1, 0.1)
+-- rectangle that doesn't move; used to show how use toScreen() function
+local rectangle = {100, 100, 100, 100}
+-- timer for sine and cosine
+local timer = 0
+local timerLimit = math.pi * 2
+-- is mouse under moving rectangle?
+local underRectangle = false
+-- rectangle that moves; used to show how you can implement mouse colission detection
+local x, y, w, h = 200, 200, 20, 20
+local dx, dy, dw, dh = 0, 0, 0, 0
+-- generate image via canvas, 1280x720
+local image = love.graphics.newCanvas(1280, 720)
+love.graphics.setCanvas(image)
+love.graphics.push("all")
+love.graphics.setColor(0.5, 0.5, 0.5, 1)
+love.graphics.rectangle("fill", 0, 0, 1280, 720)
+love.graphics.setColor(1, 0, 0, 1)
+love.graphics.setBlendMode("alpha")
+love.graphics.rectangle("fill", 0, 0, 3, 3)
+love.graphics.rectangle("fill", 1277, 0, 3, 3)
+love.graphics.rectangle("fill", 0, 717, 3, 3)
+love.graphics.rectangle("fill", 1277, 717, 3, 3)
+love.graphics.setColor(1, 1, 1, 1)
+love.graphics.setNewFont(24)
+love.graphics.print("x = 0, y = 0", 0, 5)
+love.graphics.print("x = 1280, y = 0", 1070, 0)
+love.graphics.print("x = 0, y = 720", 0, 680)
+love.graphics.print("x = 1280, y = 720", 1050, 680)
+love.graphics.pop()
+love.graphics.setCanvas()
+-- instruction message
+local message = ""
+-- used to show that callback functions exist in this library
+local gameChangedTimes = 0
+local windowChangedTimes = 0
+-- virtual game size changed callback
+rs.gameChanged = function()
+  gameChangedTimes = gameChangedTimes + 1
 end
-
--- Change options with keyborad
-love.keypressed = function(key, scancode, isrepeat)
-  if key == "f1" then
-    rs.switchScaleMode()
-  elseif key == "f2" then
-      rs.switchBars()
-  elseif key == "f3" then
-      rs.switchDebug()
-  elseif key == "f4" then
-      showGameZone = not showGameZone
-  end
+--  window size changed callback
+rs.windowChanged = function()
+  windowChangedTimes = windowChangedTimes + 1
 end
-
--- Example of how you can implement mouse collision detection function.
-local mouseFunc = function(x, y, w, h)
-
-  -- Translate mouse to ingame coordinates
+-- keyboard
+love.keypressed = function(key)
+  -- set randow virtual size
+  if key == "q" then rs.setGame(love.math.random(800, 1920), love.math.random(600, 1080)) end
+  
+  -- switch scale mode
+  if key == "w" then rs.switchScaleMode() end
+  
+  -- reset virtual size
+  if key == "r" then rs.setGame(1280, 720) end
+end
+local isMouseUnder = function(x, y, w, h)
+  -- function to check if mouse under something
+  
+  -- get scaled to game mouse position
   local mx, my = rs.toGame(love.mouse.getPosition())
-  if mx  >= x                 and -- left
-     my    >= y                 and -- top
-     mx    <= x         +    w  and -- right
-     my    <= y         +    h  then -- bottom
-     return true
-    end
-
-    return false
-end
-
-love.mousepressed = function(x, y, button, istouch, presses)
-
-    -- Example of usage for mouse collision.
-    -- Add 1 to counter if clicked.
-    if rs.isMouseInside() and mouseFunc(rectangle1.x, rectangle1.y, rectangle1.w, rectangle1.h) and button == 1 then
-      rectangle1.click = rectangle1.click + 1
-    end
-
-    -- Example of how to use and transka scaled coordinates to screen coordinates.
-    -- Set mouse cursor to rectangle.
-    if button == 2 then
-      love.mouse.setPosition(rs.toScreenX(rectangle1.x), rs.toScreenY(rectangle1.y))
-    end
-
-    -- Another translation example.
-    -- Move rectangle to cursor.
-    if button == 3 then
-      rectangle1.x, rectangle1.y = rs.toGame(love.mouse.getPosition())
-    end
-end
-
-love.draw = function()
-  -- Start scaling
-  rs.start()
-  -- Background color.
-    love.graphics.setBackgroundColor(0, 0.4, 0.6, 1)
-
-    -- Change rectangle color if we touch it.
-    if rs.isMouseInside() and mouseFunc(rectangle1.x, rectangle1.y, rectangle1.w, rectangle1.h) then
-      love.graphics.setColor(1, 0.5, 0.5, 1)
-    else
-        love.graphics.setColor(0.5, 0.5, 0.5, 1)
-    end
-
-    -- Draw rectangle.
-    love.graphics.rectangle("fill", rectangle1.x, rectangle1.y, rectangle1.w, rectangle1.h)
-
-    -- Show counter and explanation.
-    love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.print("Click on me!" .. tostring(rectangle1.click) ..  "\nYou can't click on me, if i behind\nbars, because library\ncan take care of it!", rectangle1.x, rectangle1.y)
-
-    -- Scaled text.
-    love.graphics.print("I'm scaled text!", 200, 50)
-
-    -- Example of how you can implement UI that should be scaled separately/differently from game.
-    rs.unscaleStart()
-      love.graphics.setColor(1, 1, 1, 1)
-      love.graphics.print("I'm unscaled, despite being in-between rs.start() and rs.stop()!\nAlso bars draws ontop of me!", 180, 50)
-    rs.unscaleStop()
-
-  -- Stop scaling.
-  rs.stop()
-
-  -- Bars text.
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.print("Bars can be any color you want! Not only black!", rs.windowWidth - 200, 0)
-
-  love.graphics.setColor(0, 0, 0, 1)
-    -- Example of how you can use rs.gameZone.
-    -- Draw rectangle.
-  if showGameZone then
-    love.graphics.rectangle("line", rs.gameZone.x, rs.gameZone.y, rs.gameZone.w, rs.gameZone.h)
+  
+  -- check if cursor under
+  if mx >= x     and -- left
+     my >= y     and -- top
+     mx <= x + w and -- right
+     my <= y + h then -- bottom
+    return true
   end
-
-  -- Call debug function.
-  rs.debugFunc()
-
-  -- Instructions.
+  
+  return false
+  
+end
+love.update = function(dt)
+  -- update library
+  rs.update()
+  
+  -- count timer
+  timer = timer + dt
+  
+  -- set timer to zero if it reach limit
+  if timer > timerLimit then timer = 0 end
+  -- move rectangle in circle
+  -- x coordinate
+  dx = x * math.sin(timer) + 150 + (rs.gameWidth / 10)
+  
+  -- y coordinate
+  dy = y * math.cos(timer) + 150 + (rs.gameHeight / 10)
+  -- change width and height of moving rectangle
+  dw = w + 200 * math.sin(timer / 2)
+  dh = h + 200 * math.sin(timer / 2)
+  -- this will be used to determine is mouse under rectangle in love.draw
+  underRectangle = isMouseUnder(dx, dy, dw, dh)
+  
+  -- message/instructions
+  message = "Does mouse touch moving rectangle?: " .. tostring(underRectangle) .. "\n" ..
+            "Press Q to change virtual size: w" .. tostring(rs.gameWidth) .. " h" .. tostring(rs.gameHeight) .. "\n" ..
+            "Press W to change scaling mode: " .. tostring(rs.scaleMode) .. "\n" ..
+            "Press R to reset virtual size" .. "\n" ..
+            "Times virtual size changed: " .. gameChangedTimes .. "\n" ..
+            "Times window size changed: " .. windowChangedTimes .. "\n" ..
+            "Is mouse inside scaled area?(does it touch black bars?): " .. tostring(rs.isMouseInside()) .. "\n" ..
+            "Press space to set cursor to moving rectangle" .. "\n" ..
+            "Press S to set non moving rectangle to cursor" .. "\n" ..
+            "Scaled mouse coordinates: x" .. string.format("%.2f", rs.toGameX(love.mouse.getX())) .. " y: " .. string.format("%.2f", rs.toGameY(love.mouse.getY())) .. "\n"
+  -- set cursor to moving rectangle; that how you can use toScreen() function
+  if love.keyboard.isDown("space") then love.mouse.setPosition(rs.toScreen(dx, dy)) end
+  
+  -- set non-moving rectangle to cursor; that how you can use toGame() function
+  if love.keyboard.isDown("s") then 
+    rectangle[1] = rs.toGameX(love.mouse.getX())
+    rectangle[2] = rs.toGameY(love.mouse.getY())
+    end
+end
+  
+love.draw = function()
+  rs.start()
+  
+  -- set color for example image
   love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.print("Press F1 to change scaleMode. F2 to enable/disable bars. F3 to enable/disable debug info. Press f4 to show/hide game zone borders. \nTry to change window size and click on rectangle. Press right mouse button to move cursor to rectangle. Press middle mouse to move rectangle under cursor.", 0, rs.windowHeight - 100)
+  love.graphics.draw(image)
+  
+  -- change color of moving rectangle, if you touch it with cursor or not
+  if underRectangle then love.graphics.setColor(0, 1, 0) else love.graphics.setColor(1, 0, 0) end
+  
+  -- draw moving rectangle
+  love.graphics.rectangle("line", dx, dy, dw, dh)
+    
+    -- set color for "cursor" which will follow cursor
+    love.graphics.setColor(1, 0.4, 0.9, 1)
+  
+    -- draw "cursor" translated to in-game coordinates
+    love.graphics.rectangle("fill", rs.toGameX(love.mouse.getX()), rs.toGameY(love.mouse.getY()), 10, 10)
+    
+    -- set color for non-moving rectangle
+    love.graphics.setColor(0, 0, 0, 1)
+    
+    -- draw non-moving rectangle
+    love.graphics.rectangle("line", unpack(rectangle))
+    
+    rs.unscaleStart()
+    -- example how you can use "unscale" function
+    -- with that you can draw custom ui, that you don't want to scale with library itself
+    -- or maybe with that create nice rendering for string, in pair with rs.window/gameChanged
+  
+      -- draw semi-transparent background for "I'm unscaled!" string
+      -- set i't color to black and make transparent
+      love.graphics.setColor(0, 0, 0, 0.5)
+      -- get width and height for that background
+  love.graphics.rectangle("fill", rs.windowWidth - (rs.xOff + 100), rs.windowHeight - (rs.yOff + 100), love.graphics.newFont():getWidth("I'm unscaled!"), love.graphics.newFont():getHeight("I'm unscaled!"))
+    
+      -- draw "I'm unscaled!" string
+      -- add offset for it, so it will be not drawed under black bars
+      love.graphics.setColor(1, 1, 1, 1)
+      love.graphics.print("I'm unscaled!", rs.windowWidth - (rs.xOff + 100), rs.windowHeight - (rs.yOff + 100))
+      
+    rs.unscaleStop()
+  rs.stop()
+  
+    -- draw explaination/instruction
+    love.graphics.setColor(0, 0, 0, 0.4)
+    -- count how much string have new lines and use them to determine height oh string
+  love.graphics.rectangle("fill", 0, 0, love.graphics.newFont():getWidth(message), love.graphics.newFont():getHeight(message) * select(2, string.gsub(message, "\n", "\n")))
+  love.graphics.setColor(1, 1, 1, 1) 
+  love.graphics.print(message)
 end
 --]]
 
@@ -877,13 +660,11 @@ end
 --[[
 Version 1000, 7 january 2021
 Initial release
-
 Version 1001, 6 february 2022
 * Now, scaling.stop() will remember color that was set before it and return it back after
 * Added comments for "Simple demo"
 * Added more comments for functions and variables in library, to clarify more what the do and don't
 * Fixed typo in "Simple demo"
-
 Version 1002, 8 february 2022
 * Fixed (probably) edge cases in isMouseInside() function, so now it should corectly deal with non integer offsets provided by scaling.xOff/yOff
 * Now isMouseInside() return always true if scale mode is == 2, since there is no black bars in that scaling method
@@ -892,13 +673,11 @@ Version 1002, 8 february 2022
 * Fixed typos, rewrited/rephrased comments
 * Added note in scaling.toGame/scaling.toScreen about rounding/missmathing, make sure check it
 * Added note about scaling.isMouseInside, make sure check it
-
 Version 1003, 12 february 2022
 * Added library license text in rs._LICENSE_TEXT
 * Added auto-completion API for Zerobrane Studio!
 Visit rs._URL and file RS_ZBS_API.lua for more info
 * Updated comments
-
 Version 1004, 19 may 2022
 * rs.widthScale = 0 --> rs.scaleWidth = 0
 * rs.heightScale  = 0 --> rs.scaleHeight = 0
@@ -909,7 +688,6 @@ documentation: "rs.widthScale" and "rs.heightScale" while
 should be "rs.scaleWidth" and "rs.scaleHeight", so meaning that
 trying to get "rs.widthScale" or "rs.heightScale" will result in 0, 0.
 Yeah...
-
 Version 1005, 19 may 2022
 (Sorry for bothering again with update on the same day...)
 Anyway:
@@ -918,16 +696,12 @@ You might need it when you want to draw UI, which shoudn't be scaled by lib
 regardless of currect scaling mode (stretching or with black bars),
 because to draw UI you need to know where starts/ends scaled area on window.
 And it might help for camera libraries, which uses love.graphics.setScissors.
-
 For example, if you want to use kikito's camera lib (https://github.com/kikito/gamera)
 with this my lib, you need to do:
-
 --[=[
 rs = require("scaling_solution")
 gamera = require("gamera")
-
 cam = gamera.new(0, 0, 2000, 2000)
-
 love.update = function(dt)
   -- Update my lib.
   rs.update()
@@ -939,18 +713,15 @@ love.update = function(dt)
   -- and everything, that gamera lib draw.)
   cam:setWindow(math.ceil(gameZone.x - 0.5), math.ceil(gameZone.y - 0.5), math.ceil(gameZone.w), math.ceil(gameZone.h))
 end
-
 local draw = function()
   -- Then after gamera finished tranlsating and scaling, call my lib draw:
   rs.start()
   -- * Here you draw everything that you need to be scaled.
 end
-
 love.draw = function()
   cam:draw(draw) -- you need to call camera draw in first place.
   rs.stop() -- and only after camera done drawing, you stops my lib.
 end
-
 Version v1006 20 may 2022
 * rs.drawBlackBars added.
 So now you can call it to draw black bar outside of rs.start and rs.stop.
@@ -958,52 +729,9 @@ Some libraries, especialy that use love's scissors functionality
 might broke back bars rendering;
 Or camera (or any translating related) libraries might mess with coordinate translating
 Which might end up in broken graphics and frustration.
-
 ALso, this function uses same rules as rs.stop, meaning
 rs.drawBars = false will result in rs.drawBlackBars will be not rendered.
 * Now rs.stop will draw black bars via rs.drawBlackBars.
-
-Version v2000 27 december 2022
-Big rewrite! Check source file for all detailed changes. (Some functionality in this version is not compatible with old versions.)
-Source file, at almost top, now include some tips and "tricks", check them out.
-
-New:
-* Pixel Perfect scaling! rs.setScaleMode(3) to check it out!
-* rs.init(options) - before, to change some options in library, you could update value directly from rs.* table or use provided built-in functions. Now, considering new "insidies" of library, changing options directly as rs.scaleMode = 1 will do nothing, because library will be updated only on rs.resize() or via newly (and old one) provided functions, including rs.init().
-You should call rs.init() at least once, even if you don't need to update anything in options, otherwise until first rs.resize(), you will see black screen.
-You can pass argument as table with options, or pass nothing to just update. List of options avaliable in source library file.
-* rs.setScaleMode() - allow you to change scale mode via number. Pass 1, 2, 3 to change.
-* rs.debug - boolean, which controls if rs.debugFunc() will be rendered or not.
-* rs.debugFunc() - function that will show some data that useful for debug. Call it somewhere in love.draw() as rs.debugFunc().
-* rs.switchDebug() - switch rs.debug, from true to false and vice-versa.
-
-Removed:
-* rs.windowChanged() - because now there no need in this callback.
-* rs.gameChanged() - also not really useful anymore.
-* rs.gameAspect - it was not really useful anyway.
-* rs.windowAspect - also not useful.
-* rs.update() - explained below.
-
-Changed functionality:
-* Before, there was only 2 bars: Left/right or top/bottom and they was avaliable only at scaleMode 1. With intoduced 3rd scale method, Pixel perfect, that has bars at top/bottom/left/right at same time, their functionality changed.
-You can still access them as: rs.x1, rs.y1, rs.w1, rs.h1 (from 1 to 4, rs.x1, rs.x2, rs.x3...), but order changed:
-1 for top bar
-2 for left bar
-3 for right bar
-4 for bottom bar
-* Apperantly, rs.gameZone table was never updated, because i forgot to do so in rs.update... Welp, that sucks. Now it updates properly.
-* Now all functions, that expects arguments, have error messages to point out if you passed something wrong. Yay!
-* rs.resize - now library update loop was designed around love.resize() function, instead of love.update(), like other scaling libs do. So less wasted frame time, yay! Don't forget to pass w and h from love.resize(w, h) to library as rs.resize(w, h). For compatability sake, it should be possible to put rs.resize at love.update and just pass rs.resize(love.graphics.getWidth(), love.graphics.getHeight()). It was not tested properly, but i believe there shoudn't be any problem with it, except maybe performance.
-* rs.switchScaleMode() - before until 3rd scaling method, there was only 2 methods and this function acted more like "boolean". Now, you can pass 1 or -1 to choose how you want to switch methods: 1 -> 2 -> 3 -> 1... or 3 -> 2 -> 1 -> 1...
-If you pass nothing, function will act as you passed 1.
-
-Renamed, but functionality the same:
-rs.drawBars -> rs.bars
-rs.drawBlackBars -> rs.drawBars
-rs.switchDrawBars -> rs.switchBars
-
-* Rewrited demo.
-* From now on, i will include minified version of library, with removed comments and minified code, that will make filesize lesser. https://mothereff.in/lua-minifier. Check github page.
 --]=]
   
 --]]

@@ -2,7 +2,9 @@
 Scale library, that help you add resolution support to your games in love2d!
 
 Partially, library was inspired by TLfres https://love2d.org/wiki/TLfres
-I was not satisfied with that, so i created my own
+I was not satisfied with that, so i created my own.
+
+Also there avaliable minified version. It should work as original, but weight around 10kb vs 35kb original.
 
 It have 3 scale modes:
 1 Aspect scaling mode (that creates black lines/bars)
@@ -64,7 +66,7 @@ https://youtu.be/uOTg0r3ywuA
 
 # How to install
 
-(Open "RS_ZBS_API.lua" file for full documentation)
+(Open "RS_ZBS_API.lua" file for full documentation).
 
 1. Download https://raw.githubusercontent.com/Vovkiv/resolution_solution/main/RS_ZBS_API.lua
 
@@ -78,4 +80,4 @@ api = {
 }
 ```
 
-4. Restart Zerobrane Studio! (and don't forget to set interprier to love)
+4. Restart Zerobrane Studio! (and don't forget to set interprier to love).

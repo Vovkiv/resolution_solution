@@ -1,6 +1,6 @@
 local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
-  _VERSION = 2000,
+  _VERSION = 2001,
   _LOVE = 11.4,
   _DESCRIPTION = "Scale library, that help you add resolution support to your games in love2d!",
   _NAME = "Resolution Solution",
@@ -42,6 +42,25 @@ For more information, please refer to <https://unlicense.org>
   (May be updated in future)
 --]]
 
+rs.setMode = function(width, height, flags)
+-- Wrap around love.window.setMode.
+-- Use it instead.
+
+  love.window.setMode(width, height, flags)
+  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+end
+
+-- https://github.com/Vovkiv/resolution_solution/issues/9
+-- In short, when you in pixel perect scale mode, if window size is non even, it will result in
+-- non integer offset values for x and y, which result in pixels bleedingm which is acceptable in
+-- non pixel pefrect modes, but not here.
+rs.pixelPerfectOffsetsHack = false
+
+rs.switchPixelHack = function()
+-- Turn on/off hack.
+  rs.pixelPerfectOffsetsHack = not rs.pixelPerfectOffsetsHack
+  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+end
 -- Configure library with this.
 -- Can change all possible settings at once.
 -- If you don't need to change any parameter and need simple initilise library, call empty rs.init()
@@ -147,6 +166,15 @@ rs.init = function(options)
       rs.a  = options.a
   end
 
+  -- Activate hack for pixel perfect scaling.
+  if options.hack ~= nil then
+      if type(options.hack) ~= "boolean" then
+        error(".init: table field \".hack\" should be boolean. You passed: " .. type(options.hack) .. ".")
+      end
+
+      rs.pixelPerfectOffsetsHack  = options.hack
+  end
+
   -- Update library with new parameters
   rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
 end
@@ -240,7 +268,7 @@ rs.debugFunc = function()
 
   -- Draw background rectangle for text.
   love.graphics.setColor(0, 0, 0, 0.5)
-  love.graphics.rectangle("fill", 0, 0, 180, 200)
+  love.graphics.rectangle("fill", 0, 0, 180, 240)
 
   -- Set fonts.
   love.graphics.setColor(1, 1, 1, 1)
@@ -259,6 +287,9 @@ rs.debugFunc = function()
   love.graphics.print("debug: " .. tostring(rs.debug), 0, 135)
   love.graphics.print("xOff: " .. tostring(rs.xOff), 0, 150)
   love.graphics.print("yOff: " .. tostring(rs.yOff), 0, 165)
+  love.graphics.print("pixelPerfectOffsetsHack: " .. tostring(rs.pixelPerfectOffsetsHack), 0, 180)
+  love.graphics.print("filter: " .. tostring(select(1, love.graphics.getDefaultFilter())), 0, 195)
+  love.graphics.print("anisotropy: " .. tostring(select(3, love.graphics.getDefaultFilter())), 0, 210)
 
   -- Return colors.
   love.graphics.setColor(r, g, b, a)
@@ -316,6 +347,39 @@ rs.gameZone = {
   h = 0
   }
 
+rs.nearestFilter = function(filter, anisotropy)
+-- Used to set neareast or linear filter. Refer to https://love2d.org/wiki/love.graphics.setDefaultFilter for more info.
+-- 
+-- If first argument is nil, it become true (so, nearest)
+-- If 2nd argument is nil, then function will get anisotropy value from love.graphics.getDefaultFilter (so if you changed anisotropy value somewhere before, it will simply use it instead. Current version of love use 1 as default.)
+--
+-- Note: this function will set min and mag arguments to same value.
+
+  -- Check anisotropy
+  if type(filter) ~= "nil" and type(filter) ~= "boolean" then
+    error(".nearestFilter: Expected that 1 argument should be nil or boolean. You passed: " .. type(filter) .. ".")
+  end
+
+  -- Check anisotropy argument
+  if type(anisotropy) ~= "nil" and type(anisotropy) ~= "number" then
+    error(".nearestFilter: Expected that 2 argument should be nil or number. You passed: " .. type(anisotropy) .. ".")
+  end
+
+  if anisotropy == nil then
+    anisotropy = select(3, love.graphics.getDefaultFilter())
+  end
+
+  -- If no argument or true then nearest
+  if filter == true or filter == nil then -- neareset
+    filter = "nearest"
+  else
+    filter = "linear"
+  end
+
+
+  love.graphics.setDefaultFilter(filter, filter, anisotropy)
+end
+
 rs.resize = function(windowWidth, windowHeight)
 -- Everything updates here.
 -- Call this function at love.resize and pass arguments to library. Like this:
@@ -349,7 +413,22 @@ end
     scaleHeight = windowHeight / gameHeight
 
   else
-    -- Other scaling methods need to determine scale, based on window and game aspect.
+    
+    -- https://github.com/Vovkiv/resolution_solution/issues/9
+    -- In short, when you in pixel perect scale mode, if window size is non even, it will result in
+    -- non integer offset values for x and y, which result in pixels bleedingm which is acceptable in
+    -- non pixel pefrect modes, but not here.
+    if rs.pixelPerfectOffsetsHack and rs.scaleMode == 3 then
+      if (windowWidth % 2 ~= 0) then
+        windowWidth = windowWidth + 1
+      end
+        
+      if (windowHeight % 2 ~= 0) then
+        windowHeight = windowHeight + 1
+      end
+    end
+
+  -- Other scaling methods need to determine scale, based on window and game aspect.
     local scale = math.min(windowWidth / gameWidth,  windowHeight / gameHeight)
 
     -- Pixel perfect scaling.
@@ -733,7 +812,7 @@ return rs
 
 -- demo:
 --[[
-rs = require("libs.resolution_solution")
+rs = require("resolution_solution")
 -- Refer ro source code of library, for rs.init() to get full list of avaliable options or their explanation.
 -- but in most cases you only need to specify game width/height and default scale mode.
 rs.init({width = 640, height = 480, mode = 3})
@@ -741,15 +820,18 @@ rs.init({width = 640, height = 480, mode = 3})
 -- By default, they will have black color, but you can change it and even make transparent.
 -- To change individual color, use rs.r, rs.g, rs.b, rs.a for red, green, blue and alpha.
 -- Also rs.getColor() will return 4 arguments with currect colors and rs.defaultColor() will return default black color.
-rs.setColor(0.5, 0.2, 0.2, 0.5)
+rs.setColor(0.1, 0.5, 0.2, 0.5)
 
 -- Filter, works best for pixeleted raphics.
-love.graphics.setDefaultFilter("nearest", "nearest")
+-- can be use without arguments, which same as "true".
+-- It's simple wrapper for love.graphics.setDefaultFilter().
+-- Refer source code for more info.
+rs.nearestFilter(true)
 
 -- Make window resizeable. I strongly suggest you to always make window resiable, via this love function or conf.lua
 -- After all, this library was designed for this.
-love.window.setMode(800, 600, {resizable = true})
--- SHow library name and version in title.
+rs.setMode(800, 600, {resizable = true})
+-- Show library name and version in title.
 love.window.setTitle(tostring(rs._NAME .. " v." .. rs._VERSION))
 
 -- Example rectangle, that demonstrate how you can implement, for example, mouse collision detection,
@@ -782,6 +864,8 @@ love.keypressed = function(key, scancode, isrepeat)
       rs.switchDebug()
   elseif key == "f4" then
       showGameZone = not showGameZone
+  elseif key == "f5" then
+      rs.switchPixelHack()
   end
 end
 
@@ -861,7 +945,7 @@ love.draw = function()
     -- Example of how you can use rs.gameZone.
     -- Draw rectangle.
   if showGameZone then
-    love.graphics.rectangle("line", rs.gameZone.x, rs.gameZone.y, rs.gameZone.w, rs.gameZone.h)
+    -- love.graphics.rectangle("line", rs.gameZone.x, rs.gameZone.y, rs.gameZone.w, rs.gameZone.h)
   end
 
   -- Call debug function.
@@ -869,7 +953,7 @@ love.draw = function()
 
   -- Instructions.
   love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.print("Press F1 to change scaleMode. F2 to enable/disable bars. F3 to enable/disable debug info. Press f4 to show/hide game zone borders. \nTry to change window size and click on rectangle. Press right mouse button to move cursor to rectangle. Press middle mouse to move rectangle under cursor.", 0, rs.windowHeight - 100)
+  love.graphics.print("Press F1 to change scaleMode. F2 to enable/disable bars. F3 to enable/disable debug info. Press f4 to show/hide game zone borders.\nPress F5 to activate/deactivate pixel perfect hack (make sure to be in scaling mode 3). When active, try resize window and see if you notice difference. \nTry to change window size and click on rectangle. Press right mouse button to move cursor to rectangle. Press middle mouse to move rectangle under cursor.", 0, rs.windowHeight - 100)
 end
 --]]
 
@@ -1004,6 +1088,35 @@ rs.switchDrawBars -> rs.switchBars
 
 * Rewrited demo.
 * From now on, i will include minified version of library, with removed comments and minified code, that will make filesize lesser. https://mothereff.in/lua-minifier. Check github page.
+
+Version v2001 31 december 2022
+Small update, that add some QoL features, and hack for Pixel Pefrect Scaling. Check source code (specifically
+rs.pixelPerfectOffsetsHack and rs.resize) and this update log for more info.
+Happy new year!
+
+New:
+* nearestFilter(filter, anisotropy) - this function is easier to use wrapper for love.graphics.setDefaultFilter()
+It expects 2 optional arguments:
+1st in true/false or nil (which is esentially nothing). true/nil results in nearest filtering, while false is linear.
+2nd is anisotropy. It can be number or nil. If number, function will simply use it to slap into love.graphics.setDefaultFilter(),
+but if nil, then library will simply get anisotropy value from love.graphics.getDefaultFilter() and will use it instead. Current love uses 1 as default.
+If this function was never run, library will never touch or edit love.graphics.setDefaultFilter()
+
+* rs.pixelPerfectOffsetsHack = false/true - very experimental feature, that aim to fix pixel bleeding in perfect scaling mode
+when window size is not even. It result in always "clean" pixels, byt comes with side effects such as:
+1. rs.windowWidth and rs.windowHeight will be wrong by 1 if window is non even. The workaround is to use love.graphics.getWidth/Height instead.
+2. On non even window size, offset from left and top will place game content on 1 pixel left/upper.
+It shouldn't be problem for end user tho.
+
+But if you never ever draw anything inside rs.unscaleStart() and rs.unscaleStop() and outside of rs.start() and stop(), then you should probably fine using this hack.
+
+* rs.switchPixelHack() - turn on/off mentioned hack.
+* rs.setMode() - wrapper around love.window.setMode(). You should use this functions instead, since using love.window.setMode() might
+don't trigger love.resize and therefore rs.resize.  
+
+Updated:
+* Updated demo to include all new functions and values
+* Updated rs.debugFunc to include all new values and functions
 --]=]
   
 --]]

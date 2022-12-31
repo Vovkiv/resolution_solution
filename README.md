@@ -34,6 +34,10 @@ https://www.youtube.com/watch?v=lvDzdOhtt_0
 
 ``` rs.init({width = 640, height = 480, mode = 3}) ```
 
+Make window resiable:
+
+``` rs.setMode(800, 600, {resizable = true}) ```
+
 3 update library
  ```
 love.resize = function(w, h)

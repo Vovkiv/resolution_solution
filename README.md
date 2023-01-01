@@ -1,5 +1,6 @@
 # Resolution Solution
 Scale library, that help you add resolution support to your games in love2d!
+
 (NOTE, at current moment, library architecture/api/naming might drastically change with every update.
 So don't expect any consistency and backward compatibility with updates any time soon.
 If you don't need any fancy updates and just need scaling, stick to version v2000, aunder "history" folder.

@@ -62,7 +62,9 @@ And much more!
 
 # Okay, but where i can see it in action?
 Her, YouTube little demonstration video:
+
 https://www.youtube.com/watch?v=lvDzdOhtt_0
+
 Or just download and run ```demo.love```!
 
 # Looks good, but how basic setup looks like?

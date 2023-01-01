@@ -41,15 +41,23 @@ In short, thi library tries to be netter replacement for any scaling solutions, 
 
 # What it can/have?
 It have 3 scale modes:
+
 1 Aspect scaling mode - creates black lines/bars on sides, will provide same width and height scale for pixels, result in more clean look.
+
 2 Stretching - stretch game to fill screen.
+
 3 Pixel Perfect - will scale, using only integer scale factors and adds black bars if it can't. Useful for pixel art.
 
 Provide all sort of functions to deal with library, such as:
+
 rs.nearesFilter() - that allow quickly change filter for more pixel art scaling.
+
 rs.switchBars() - function to enable/disable bars rendering
+
 rs.setColor() - to change color of black bars.
-rs.debugFunc(( - that can help you monitor library values
+
+rs.debugFunc() - that can help you monitor library values.
+
 And much more!
 
 # Okay, but where i can see it in action?

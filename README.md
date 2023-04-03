@@ -1,3 +1,5 @@
+# Not maintained anymore.
+
 # Resolution Solution
 Scale library, that help you add resolution support to your games in love2d!
 

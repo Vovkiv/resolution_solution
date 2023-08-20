@@ -14,7 +14,7 @@ It have 3 scale modes and you can switch between them at any time:
 3 Pixel Perfect - will scale, using only integer scale factors and adds black bars if it can't. Useful for pixel art.
 
 # Video demonstration:
-https://www.youtube.com/watch?v=lvDzdOhtt_0
+https://youtu.be/cslfWOpetrc
 
 # Basic setup:
 1 drop library into your main.lua:

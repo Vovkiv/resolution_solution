@@ -16,8 +16,6 @@ It have 3 scale modes and you can switch between them at any time:
 # Video demonstration:
 https://www.youtube.com/watch?v=lvDzdOhtt_0
 
-Or just download and run ```demo.love```!
-
 # Basic setup:
 1 drop library into your main.lua:
 

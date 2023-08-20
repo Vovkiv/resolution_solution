@@ -1,6 +1,3 @@
-# Not maintained anymore.
-I don't have plans to use love2d anymore, which means that i won't be able to maintain this library anymore, so now it become read-only.
-
 # Resolution Solution
 Scale library, that help you add resolution support to your games in love2d!
 

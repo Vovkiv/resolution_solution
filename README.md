@@ -46,3 +46,5 @@ love.draw = function()
     rs.stop()
 end
 ```
+
+You can also check this demo for more examples of library usage: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love

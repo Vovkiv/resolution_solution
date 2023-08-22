@@ -320,6 +320,9 @@ rs.debugFunc = function(debugX, debugY)
   
   -- Return this colors later.
   local r, g, b, a = love.graphics.getColor()
+  
+  -- Return this font later.
+  local oldFont = love.graphics.getFont()
 
   -- Draw background rectangle for text.
   love.graphics.setColor(0, 0, 0, 0.5)
@@ -352,6 +355,9 @@ rs.debugFunc = function(debugX, debugY)
 
   -- Return colors.
   love.graphics.setColor(r, g, b, a)
+  
+  -- Retun original font
+  love.graphics.setFont(oldFont)
 end
 
 -- Turn on/off debug function.

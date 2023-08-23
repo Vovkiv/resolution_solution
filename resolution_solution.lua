@@ -36,14 +36,14 @@ For more information, please refer to <https://unlicense.org>
 
 rs.setMode = function(width, height, flags)
   love.window.setMode(width, height, flags)
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+  rs.resize()
 end
 
 rs.pixelPerfectOffsetsHack = true
 
 rs.switchPixelHack = function()
   rs.pixelPerfectOffsetsHack = not rs.pixelPerfectOffsetsHack
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+  rs.resize()
 end
 
 rs.init = function(options)
@@ -170,7 +170,7 @@ rs.init = function(options)
   end
 
   -- Update library with new parameters
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+  rs.resize()
 end
 
 -- 1 aspect scaling (Scale game with bars on top-bottom or left-right. Scale by width and height will be same, but not ideal for pixel graphics.)
@@ -192,7 +192,7 @@ rs.setScaleMode = function(mode)
     end
 
     rs.scaleMode = mode
-    rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+    rs.resize()
 end
 rs.switchScaleMode = function(side)
   -- Function to switch in-between scale modes.
@@ -226,7 +226,7 @@ rs.switchScaleMode = function(side)
   if rs.scaleMode < 1 then rs.scaleMode = 3 end
 
   -- Since we changed scale mode, we need to re-calculate library data.
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+  rs.resize()
 end
 
 -- Used to turn on/off rendering of bars when rs.drawBars() called.
@@ -265,6 +265,9 @@ rs.debugFunc = function(debugX, debugY)
   local debugWidth = 200 + debugLeftOffset
   local debugHeight = 240 + debugTopOffset
 
+  -- Get window size
+  local windowWidth = rs.windowWidth
+  local windowHeight = rs.windowHeight
   
   debugX = debugX or "left"
   debugY = debugY or "top"
@@ -284,7 +287,7 @@ rs.debugFunc = function(debugX, debugY)
     if debugX == "left" then
       debugX = 0
     elseif debugX == "right" then
-      debugX = love.graphics.getWidth() - debugWidth
+      debugX = windowWidth - debugWidth
     end
   -- If number.
   elseif type(debugX) == "number" then
@@ -293,8 +296,8 @@ rs.debugFunc = function(debugX, debugY)
       debugX = 0
     end
     
-    if debugX > love.graphics.getWidth() - debugWidth then
-      debugX = love.graphics.getWidth() - debugWidth
+    if debugX > windowWidth - debugWidth then
+      debugX = windowWidth - debugWidth
     end
   end
   
@@ -304,7 +307,7 @@ rs.debugFunc = function(debugX, debugY)
     if debugY == "top" then
       debugY = 0
     elseif debugY == "bottom" then
-      debugY = love.graphics.getHeight() - debugHeight
+      debugY = windowHeight - debugHeight
     end
     -- If number.
   elseif type(debugY) == "number" then
@@ -313,8 +316,8 @@ rs.debugFunc = function(debugX, debugY)
       debugY = 0
     end
     
-    if debugY > love.graphics.getHeight() - debugWidth then
-      debugY = love.graphics.getHeight() - debugWidth
+    if debugY > windowHeight - debugWidth then
+      debugY = windowHeight - debugWidth
     end
   end
   
@@ -356,7 +359,7 @@ rs.debugFunc = function(debugX, debugY)
   -- Return colors.
   love.graphics.setColor(r, g, b, a)
   
-  -- Retun original font
+  -- Return original font.
   love.graphics.setFont(oldFont)
 end
 
@@ -457,7 +460,8 @@ love.resize = function(w, h)
   rs.resize(w, h)
 end
 --]]
-
+  windowWidth = windowWidth or love.graphics.getWidth()
+  windowHeight = windowHeight or love.graphics.getHeight()
   -- Check if user passed arguments and they are numbers.
   if type(windowHeight) ~= "number" or type(windowHeight) ~= "number" then
     error(".resize: Expected 2 arguments, that should be numbers. You passed: " .. type(windowWidth) .. " and " .. type(windowHeight) .. ". Make sure that you pass arguments from love.resize(w, h) to this function.")
@@ -739,7 +743,7 @@ rs.setGame = function(width, height)
 
   rs.gameWidth = width
   rs.gameHeight = height
-  rs.resize(love.graphics.getWidth(), love.graphics.getHeight())
+  rs.resize()
 end
 
 rs.getGame = function()

@@ -35,7 +35,10 @@ For more information, please refer to <https://unlicense.org>
 }
 
 rs.setMode = function(width, height, flags)
-  love.window.setMode(width, height, flags)
+  local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
+  if not okay then
+    error(".setMode: Error happened on lua/love side: " .. errorMessage, 2)
+  end
   rs.resize()
 end
 
@@ -48,7 +51,7 @@ end
 
 rs.init = function(options)
   if type(options) ~= "nil" and type(options) ~= "table" then
-    error(".init: Expected table or nil argument. You passed: " .. type(options) .. ".")
+    error(".init: Expected table or nil argument. You passed: " .. type(options) .. ".", 2)
   end
 
   options = options or {}
@@ -56,7 +59,7 @@ rs.init = function(options)
   -- Game width.
   if options.width then
       if type(options.width) ~= "number" then
-        error(".init: table field \".width\" should be number. You passed: " .. type(options.width) .. ".")
+        error(".init: table field \".width\" should be number. You passed: " .. type(options.width) .. ".", 2)
       end
 
       rs.gameWidth  = options.width
@@ -65,7 +68,7 @@ rs.init = function(options)
   -- Game height.
   if options.height then
       if type(options.height) ~= "number" then
-        error(".init: table field \".height\" should be number. You passed: " .. type(options.height) .. ".")
+        error(".init: table field \".height\" should be number. You passed: " .. type(options.height) .. ".", 2)
       end
 
       rs.gameHeight  = options.height
@@ -74,7 +77,7 @@ rs.init = function(options)
   -- Render bars?
   if options.bars ~= nil then
       if type(options.bars) ~= "boolean" then
-        error(".init: table field \".bars\" should be boolean. You passed: " .. type(options.bars) .. ".")
+        error(".init: table field \".bars\" should be boolean. You passed: " .. type(options.bars) .. ".", 2)
       end
 
       rs.bars = options.bars
@@ -83,7 +86,7 @@ rs.init = function(options)
   -- Show/hide debug info.
   if options.debug ~= nil then
       if type(options.debug) ~= "boolean" then
-        error(".init: table field \".debug\" should be boolean. You passed: " .. type(options.debug) .. ".")
+        error(".init: table field \".debug\" should be boolean. You passed: " .. type(options.debug) .. ".", 2)
       end
 
       rs.debug = options.debug
@@ -92,12 +95,12 @@ rs.init = function(options)
   -- Scale mode.
   if options.mode then
       if type(options.mode) ~= "number" then
-        error(".init: table field \".mode\" should be number. You passed: " .. type(options.mode) .. ".")
+        error(".init: table field \".mode\" should be number. You passed: " .. type(options.mode) .. ".", 2)
       end
       
       -- Check for out of bounds.
       if options.mode > 3 or options.mode < 1 then
-        error(".init: table field \".mode\" should be 1, 2 or 3. You passed: " .. tostring(options.mode) .. ".")
+        error(".init: table field \".mode\" should be 1, 2 or 3. You passed: " .. tostring(options.mode) .. ".", 2)
       end
 
       rs.scaleMode  = options.mode
@@ -107,12 +110,12 @@ rs.init = function(options)
   -- If user passed .r parameter, check it for being number.
   if options.r then
       if type(options.r) ~= "number" then
-        error(".init: table field \".r\" should be number. You passed: " .. type(options.r) .. ".")
+        error(".init: table field \".r\" should be number. You passed: " .. type(options.r) .. ".", 2)
       end
       
       -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
       if options.r > 1 or options.r < 0 then
-         error(".init: table field \".r\" should be in-between 0 to 1. You passed: " .. tostring(options.r) .. ".")
+         error(".init: table field \".r\" should be in-between 0 to 1. You passed: " .. tostring(options.r) .. ".", 2)
       end
       
       rs.r  = options.r
@@ -121,12 +124,12 @@ rs.init = function(options)
   -- Green from RGBA for bars.
   if options.g then
       if type(options.g) ~= "number" then
-        error(".init: table field \".g\" should be number. You passed: " .. type(options.g) .. ".")
+        error(".init: table field \".g\" should be number. You passed: " .. type(options.g) .. ".", 2)
       end
       
       -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
       if options.g > 1 or options.g < 0 then
-         error(".init: table field \".g\" should be in-between 0 to 1. You passed: " .. tostring(options.g) .. ".")
+         error(".init: table field \".g\" should be in-between 0 to 1. You passed: " .. tostring(options.g) .. ".", 2)
       end
 
       rs.g  = options.g
@@ -135,12 +138,12 @@ rs.init = function(options)
   -- Blue from RGBA for bars.
   if options.b then
       if type(options.b) ~= "number" then
-        error(".init: table field \".b\" should be number. You passed: " .. type(options.b) .. ".")
+        error(".init: table field \".b\" should be number. You passed: " .. type(options.b) .. ".", 2)
       end
 
       -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
       if options.b > 1 or options.b < 0 then
-         error(".init: table field \".b\" should be in-between 0 to 1. You passed: " .. tostring(options.b) .. ".")
+         error(".init: table field \".b\" should be in-between 0 to 1. You passed: " .. tostring(options.b) .. ".", 2)
       end
 
       rs.b  = options.b
@@ -149,12 +152,12 @@ rs.init = function(options)
   -- Alpha from RGBA for bars.
   if options.a then
       if type(options.a) ~= "number" then
-        error(".init: table field \".a\" should be number. You passed: " .. type(options.a) .. ".")
+        error(".init: table field \".a\" should be number. You passed: " .. type(options.a) .. ".", 2)
       end
 
       -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
       if options.a > 1 or options.a < 0 then
-         error(".init: table field \".a\" should be in-between 0 to 1. You passed: " .. tostring(options.a) .. ".")
+         error(".init: table field \".a\" should be in-between 0 to 1. You passed: " .. tostring(options.a) .. ".", 2)
       end
 
       rs.a  = options.a
@@ -163,7 +166,7 @@ rs.init = function(options)
   -- Activate hack for pixel perfect scaling.
   if options.hack ~= nil then
       if type(options.hack) ~= "boolean" then
-        error(".init: table field \".hack\" should be boolean. You passed: " .. type(options.hack) .. ".")
+        error(".init: table field \".hack\" should be boolean. You passed: " .. type(options.hack) .. ".", 2)
       end
 
       rs.pixelPerfectOffsetsHack  = options.hack
@@ -184,10 +187,10 @@ rs.setScaleMode = function(mode)
   -- 3 pixel perfect.
 
     if type(mode) ~= "number" then
-      error(".setScaleMode: Expected number or nil argument. You passed: " .. type(mode) .. ".")
+      error(".setScaleMode: Expected number or nil argument. You passed: " .. type(mode) .. ".", 2)
     else
         if mode > 3 or mode < 1 then
-          error(".setScaleMode: Expected argument to be 1, 2 or 3. You passed: " .. tostring(mode).. ".")
+          error(".setScaleMode: Expected argument to be 1, 2 or 3. You passed: " .. tostring(mode).. ".", 2)
         end
     end
 
@@ -211,11 +214,11 @@ rs.switchScaleMode = function(side)
   side = side or 1
 
   if type(side) ~= "number" then
-    error(".switchScaleMode: Expected number or nil argument. You passed: " .. type(side) .. ".")
+    error(".switchScaleMode: Expected number or nil argument. You passed: " .. type(side) .. ".", 2)
   else
     -- You can't pass only 1 and +1 number.
     if side ~= 1 and side ~= -1 then
-      error(".switchScaleMode: Expected argument should be 1, -1 or nil. You passed: " .. tostring(side))
+      error(".switchScaleMode: Expected argument should be 1, -1 or nil. You passed: " .. tostring(side), 2)
     end
   end
 
@@ -274,11 +277,11 @@ rs.debugFunc = function(debugX, debugY)
   
   -- Do sanity check for input arguments.
   if (type(debugX) ~= "string" and type(debugX) ~= "number") then
-    error(".debugFunc: 1st argument should be string or number or nil. You passed: " .. type(debugX) .. ".")
+    error(".debugFunc: 1st argument should be string or number or nil. You passed: " .. type(debugX) .. ".", 2)
   end
   
   if (type(debugY) ~= "string" and type(debugY) ~= "number") then
-    error(".debugFunc: 2nd argument should be string or number or nil. You passed: " .. type(debugY) .. ".")
+    error(".debugFunc: 2nd argument should be string or number or nil. You passed: " .. type(debugY) .. ".", 2)
   end
   
   -- Do sanity check if input is string.
@@ -429,7 +432,7 @@ rs.nearestFilter = function(filter, anisotropy)
   end
   
   if type(filter) ~= "boolean" then
-    error(".nearestFilter: 1 argument should be nil or boolean. You passed: " .. type(filter) .. ".")
+    error(".nearestFilter: 1 argument should be nil or boolean. You passed: " .. type(filter) .. ".", 2)
   end
   
   -- Translate boolean to string.
@@ -439,15 +442,18 @@ rs.nearestFilter = function(filter, anisotropy)
     filter = "linear"
   end
   
-  
   -- Check anisatropy.
   anisotropy = anisotropy or select(3, love.graphics.getDefaultFilter())
   
   if type(anisotropy) ~= "number" then
-    error(".nearestFilter: 2 argument should be nil or number. You passed: " .. type(anisotropy) .. ".")
+    error(".nearestFilter: 2 argument should be nil or number. You passed: " .. type(anisotropy) .. ".", 2)
   end
   
-  love.graphics.setDefaultFilter(filter, filter, anisotropy)
+  -- Just in case, call this function in protected way.
+  local okay, errorMessage = pcall(love.graphics.setDefaultFilter, filter, filter, anisotropy)
+  if not okay then
+    error(".nearestFilter: Error happened on lua/love side: " .. errorMessage, 2)
+  end
 end
 
 rs.resizeCallback = function()
@@ -467,10 +473,10 @@ end
   
   -- Check if user passed arguments and if they are numbers.
   if type(windowWidth) ~= "number" then
-    error(".resize: 1 argument should be number or nil. You passed: " .. type(windowWidth) .. ".")
+    error(".resize: 1 argument should be number or nil. You passed: " .. type(windowWidth) .. ".", 2)
   end
   if type(windowHeight) ~= "number" then
-    error(".resize: 2 argument should be number or nil. You passed: " .. type(windowHeight) .. ".")
+    error(".resize: 2 argument should be number or nil. You passed: " .. type(windowHeight) .. ".", 2)
   end
 
   -- Scale for game virtual size.
@@ -637,26 +643,26 @@ rs.setColor = function(r, g, b, a)
   -- Set color of bars.
 
   if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" or type(a) ~= "number" then
-      error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".")
+      error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".", 2)
   end
   
     -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
     if r > 1 or r < 0 then
-        error(".setColor: Argument \"r\" should be number in-between 0 - 1. You passed: " .. tostring(r) .. ".")
+        error(".setColor: Argument \"r\" should be number in-between 0 - 1. You passed: " .. tostring(r) .. ".", 2)
     end
     
     -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
     if g > 1 or g < 0 then
-        error(".setColor: Argument \"g\" should be number in-between 0 - 1. You passed: " .. tostring(g) .. ".")
+        error(".setColor: Argument \"g\" should be number in-between 0 - 1. You passed: " .. tostring(g) .. ".", 2)
     end
     
     -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
     if b > 1 or b < 0 then
-        error(".setColor: Argument \"b\" should be number in-between 0 - 1. You passed: " .. tostring(b) .. ".")
+        error(".setColor: Argument \"b\" should be number in-between 0 - 1. You passed: " .. tostring(b) .. ".", 2)
     
     end    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
     if a > 1 or a < 0 then
-        error(".setColor: Argument \"a\" should be number in-between 0 - 1. You passed: " .. tostring(a) .. ".")
+        error(".setColor: Argument \"a\" should be number in-between 0 - 1. You passed: " .. tostring(a) .. ".", 2)
     end
 
   rs.r = r -- red
@@ -744,7 +750,7 @@ rs.setGame = function(width, height)
   -- Set virtual size which game should be scaled to.
 
   if type(width) ~= "number" or type(height) ~= "number"  then
-      error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".")
+      error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
   end
 
   rs.gameWidth = width
@@ -825,7 +831,7 @@ love.mousepressed = function(x, y, button, istouch, presses)
   --]]
 
   if type(x) ~= "number" or type(y) ~= "number" then
-    error(".toGame: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".")
+    error(".toGame: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".", 2)
   end
 
   return (x - rs.xOff) / rs.scaleWidth, (y - rs.yOff) / rs.scaleHeight
@@ -837,7 +843,7 @@ rs.toGameX = function(x)
   -- for example, area to check collisions with object and cursor.
 
   if type(x) ~= "number" then
-    error(".toGameX: Expected argument, that should be number. You passed: " .. type(x) .. ".")
+    error(".toGameX: Expected argument, that should be number. You passed: " .. type(x) .. ".", 2)
   end
 
   return (x - rs.xOff) / rs.scaleWidth
@@ -849,7 +855,7 @@ rs.toGameY = function(y)
   -- for example, area to check collisions with object and cursor;
 
   if type(y) ~= "number" then
-    error(".toGameY: Expected argument, that should be number. You passed: " .. type(y) .. ".")
+    error(".toGameY: Expected argument, that should be number. You passed: " .. type(y) .. ".", 2)
   end
 
   return (y - rs.yOff) / rs.scaleHeight
@@ -873,7 +879,7 @@ rs.toScreen = function(x, y)
   --]]
   
   if type(x) ~= "number" or type(y) ~= "number" then
-    error(".toScreen: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".")
+    error(".toScreen: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".", 2)
   end
 
   return (x * rs.scaleWidth) + rs.xOff, (y * rs.scaleHeight) + rs.yOff
@@ -885,7 +891,7 @@ rs.toScreenX = function(x)
   -- to, for example, set cursor position to that object
   
   if type(x) ~= "number" then
-    error(".toScreenX: Expected argument, that should be number. You passed: " .. type(x) .. ".")
+    error(".toScreenX: Expected argument, that should be number. You passed: " .. type(x) .. ".", 2)
   end
 
   return (x * rs.scaleWidth) + rs.xOff
@@ -897,7 +903,7 @@ rs.toScreenY = function(y)
   -- to, for example, set cursor position to that object
   
   if type(y) ~= "number" then
-    error(".toScreenY: Expected argument, that should be number. You passed: " .. type(y) .. ".")
+    error(".toScreenY: Expected argument, that should be number. You passed: " .. type(y) .. ".", 2)
   end
   
   return (y * rs.scaleHeight) + rs.yOff

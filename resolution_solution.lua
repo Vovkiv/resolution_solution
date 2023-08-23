@@ -423,28 +423,30 @@ rs.nearestFilter = function(filter, anisotropy)
 --
 -- Note: this function will set min and mag arguments to same value.
 
-  -- Check anisotropy
-  if type(filter) ~= "nil" and type(filter) ~= "boolean" then
-    error(".nearestFilter: Expected that 1 argument should be nil or boolean. You passed: " .. type(filter) .. ".")
+  -- Check filter.
+  if filter == nil then
+    filter = true
   end
-
-  -- Check anisotropy argument
-  if type(anisotropy) ~= "nil" and type(anisotropy) ~= "number" then
-    error(".nearestFilter: Expected that 2 argument should be nil or number. You passed: " .. type(anisotropy) .. ".")
+  
+  if type(filter) ~= "boolean" then
+    error(".nearestFilter: 1 argument should be nil or boolean. You passed: " .. type(filter) .. ".")
   end
-
-  if anisotropy == nil then
-    anisotropy = select(3, love.graphics.getDefaultFilter())
-  end
-
-  -- If no argument or true then nearest
-  if filter == true or filter == nil then -- neareset
+  
+  -- Translate boolean to string.
+  if filter == true then -- neareset
     filter = "nearest"
-  else
+  elseif filter == false then -- linear
     filter = "linear"
   end
-
-
+  
+  
+  -- Check anisatropy.
+  anisotropy = anisotropy or select(3, love.graphics.getDefaultFilter())
+  
+  if type(anisotropy) ~= "number" then
+    error(".nearestFilter: 2 argument should be nil or number. You passed: " .. type(anisotropy) .. ".")
+  end
+  
   love.graphics.setDefaultFilter(filter, filter, anisotropy)
 end
 

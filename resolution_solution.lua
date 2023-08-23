@@ -33,12 +33,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 For more information, please refer to <https://unlicense.org>
 ]]
 }
-
+-- Wrapper for love.window.setMode()
 rs.setMode = function(width, height, flags)
   local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
   if not okay then
-    error(".setMode: Error happened on lua/love side: " .. errorMessage, 2)
+    error(".setMode: Error: " .. errorMessage, 2)
   end
+  
+  -- Since we potentially changed here window size, we need to recalculate all data.
   rs.resize()
 end
 
@@ -176,32 +178,27 @@ rs.init = function(options)
   rs.resize()
 end
 
--- 1 aspect scaling (Scale game with bars on top-bottom or left-right. Scale by width and height will be same, but not ideal for pixel graphics.)
--- 2 stretched scaling mode (Scale game to fill entire window. So no bars.)
--- 3 pixel perfect (Scale with integer scaling numbers. It will lead to bars on top and bottom and left and right at same time. Ideal for pixel graphics.)
+-- 1 Aspect Ascaling
+-- 2 Stretched Scaling
+-- 3 Pixel Perfect scaling
 rs.scaleMode    = 1
 
 rs.setScaleMode = function(mode)
-  -- 1 aspect scaling.
-  -- 2 stretch.
-  -- 3 pixel perfect.
-
+  -- Sanity check for input argument.
     if type(mode) ~= "number" then
       error(".setScaleMode: Expected number or nil argument. You passed: " .. type(mode) .. ".", 2)
     else
-        if mode > 3 or mode < 1 then
-          error(".setScaleMode: Expected argument to be 1, 2 or 3. You passed: " .. tostring(mode).. ".", 2)
-        end
+      -- Since currently there only 3 modes, anything other then that should raise error.
+      if mode > 3 or mode < 1 then
+        error(".setScaleMode: Expected argument to be 1, 2 or 3. You passed: " .. tostring(mode).. ".", 2)
+      end
     end
 
     rs.scaleMode = mode
     rs.resize()
 end
 rs.switchScaleMode = function(side)
-  -- Function to switch in-between scale modes.
-  -- Pass 1 or nil to change mode by +1 (so, if current mode 2, stretching, it become 3, pixel perfect)
-  -- and pass -1 to change backwards.
-  -- You can ise it like this:
+  -- You can use it like this:
   --[[
   love.keypressed = function(key)
     if key == "f3" then
@@ -216,7 +213,7 @@ rs.switchScaleMode = function(side)
   if type(side) ~= "number" then
     error(".switchScaleMode: Expected number or nil argument. You passed: " .. type(side) .. ".", 2)
   else
-    -- You can't pass only 1 and +1 number.
+    -- Anything other then 1 and -1 and nil will raise error.
     if side ~= 1 and side ~= -1 then
       error(".switchScaleMode: Expected argument should be 1, -1 or nil. You passed: " .. tostring(side), 2)
     end
@@ -232,12 +229,9 @@ rs.switchScaleMode = function(side)
   rs.resize()
 end
 
--- Used to turn on/off rendering of bars when rs.drawBars() called.
--- If false, rs.drawBars() will NOT draw bars.
+-- Render black bars?
 rs.bars  = true
 
--- Turn on/off bars rendering.
--- Use it like this:
 --[[
 love.keypressed = function(key)
     if key == "f2" then
@@ -249,18 +243,16 @@ rs.switchBars = function()
   rs.bars = not rs.bars
 end
 
--- Determine if rs.debugFunc() will show some debug info.
--- If true, then this function will draw debug.
+-- Render debug window once called rs.debugFunc()?
 rs.debug = true
 
--- Place it somewhere in love.draw() and set rs.debug to true, then this function will draw some useful information about library.
--- You can overide this function, but in most cases there no need to.
+-- Function used to render debug info on-screen.
 rs.debugFunc = function(debugX, debugY)
   
-  -- If debug disabled, there no point in wasting time on rendering debug info.
+  -- If debug disabled, there no point in wasting time on futher actions.
   if not rs.debug then return end
   
-  -- Offset for left side.
+  -- Offsets so it will bea easier to read text.
   local debugLeftOffset = 5
   local debugTopOffset = 5
   
@@ -268,10 +260,10 @@ rs.debugFunc = function(debugX, debugY)
   local debugWidth = 200 + debugLeftOffset
   local debugHeight = 240 + debugTopOffset
 
-  -- Get window size
   local windowWidth = rs.windowWidth
   local windowHeight = rs.windowHeight
   
+  -- Default position is top-left corner of window.
   debugX = debugX or "left"
   debugY = debugY or "top"
   
@@ -284,7 +276,7 @@ rs.debugFunc = function(debugX, debugY)
     error(".debugFunc: 2nd argument should be string or number or nil. You passed: " .. type(debugY) .. ".", 2)
   end
   
-  -- Do sanity check if input is string.
+  -- Translate string to actual coordinates.
   if type(debugX) == "string" then
     
     if debugX == "left" then
@@ -292,7 +284,7 @@ rs.debugFunc = function(debugX, debugY)
     elseif debugX == "right" then
       debugX = windowWidth - debugWidth
     end
-  -- If number.
+  -- If number, then place it where number says.
   elseif type(debugX) == "number" then
     
     if debugX < 0 then
@@ -304,7 +296,7 @@ rs.debugFunc = function(debugX, debugY)
     end
   end
   
-  -- Do sanity check if input is string.
+  -- Translate string to actual coordinates.
   if type(debugY) == "string" then
     
     if debugY == "top" then
@@ -312,7 +304,7 @@ rs.debugFunc = function(debugX, debugY)
     elseif debugY == "bottom" then
       debugY = windowHeight - debugHeight
     end
-    -- If number.
+  -- If number, then place it where number says.
   elseif type(debugY) == "number" then
     
     if debugY < 0 then
@@ -324,10 +316,10 @@ rs.debugFunc = function(debugX, debugY)
     end
   end
   
-  -- Return this colors later.
+  -- Save color that was before debug function.
   local r, g, b, a = love.graphics.getColor()
   
-  -- Return this font later.
+  -- Save font that was before debug function.
   local oldFont = love.graphics.getFont()
 
   -- Draw background rectangle for text.
@@ -336,7 +328,7 @@ rs.debugFunc = function(debugX, debugY)
   -- Place debug info on screen according to user input.
   love.graphics.rectangle("fill", debugX, debugY, debugWidth, debugHeight)
 
-  -- Set fonts.
+  -- Set font and color.
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.setFont(love.graphics.newFont(12))
 
@@ -362,7 +354,7 @@ rs.debugFunc = function(debugX, debugY)
   -- Return colors.
   love.graphics.setColor(r, g, b, a)
   
-  -- Return original font.
+  -- Return font.
   love.graphics.setFont(oldFont)
 end
 
@@ -379,54 +371,30 @@ rs.switchDebug = function()
   rs.debug = not rs.debug
 end
 
--- Scale width and height value, that library will produce, based on scale mode and ratio between game size and window size.
--- Use this values for scaling related math, such as glue this library with camera libraries, UI library, etc.
 rs.scaleWidth, rs.scaleHeight = 0, 0
 
--- Virtual width and height for game, that library will scale to.
 rs.gameWidth, rs.gameHeight    = 800, 600
 
--- Window size. Can be used instead of love.graphics.getWidth/getHeight functions.
 rs.windowWidth, rs.windowHeight  = 0, 0
 
--- Width and height offsets, caused by scaling. In scale mode 2, will always be 0, 0.
 rs.xOff, rs.yOff = 0, 0
 
--- X, Y, Width, Height for every ractangle-bar, that used to hide something behind offseted areas.
--- It also should be possible, to disable bar rendering via rs.bars = false and using love.graphics.setScissor() with combining
--- rs.getGameZone(), so it will act like PUSH scaling library, where it just draw scaled area to canvas and scale it.
 rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, 0, 0 -- top (1)
 rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0 -- left (2)
 rs.x3, rs.y3, rs.w3, rs.h3 = 0, 0, 0, 0 -- right (3)
 rs.x4, rs.y4, rs.w4, rs.h4 = 0, 0, 0, 0 -- bottom (4)
 
--- Colors of bars: red, green, blue, alpha.
--- Black by default.
 rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
 
--- Coordinates for scaled area, that visible in window. So, if, for example, game width and height is 800x600 and current offsets is x = 10, y = 15
--- then this table will have:
--- x = 10
--- y = 15
--- w = 790
--- h = 585
--- Might be useful for integrating this library with camera libraries, UI libraries, etc.
 rs.gameZone = {
   x = 0,
   y = 0,
   w = 0,
   h = 0
-  }
+}
 
 rs.nearestFilter = function(filter, anisotropy)
--- Used to set neareast or linear filter. Refer to https://love2d.org/wiki/love.graphics.setDefaultFilter for more info.
--- 
--- If first argument is nil, it become true (so, nearest)
--- If 2nd argument is nil, then function will get anisotropy value from love.graphics.getDefaultFilter (so if you changed anisotropy value somewhere before, it will simply use it instead. Current version of love use 1 as default.)
---
--- Note: this function will set min and mag arguments to same value.
-
-  -- Check filter.
+  -- Sanity check for filter argument.
   if filter == nil then
     filter = true
   end
@@ -452,7 +420,7 @@ rs.nearestFilter = function(filter, anisotropy)
   -- Just in case, call this function in protected way.
   local okay, errorMessage = pcall(love.graphics.setDefaultFilter, filter, filter, anisotropy)
   if not okay then
-    error(".nearestFilter: Error happened on lua/love side: " .. errorMessage, 2)
+    error(".nearestFilter: Error: " .. errorMessage, 2)
   end
 end
 
@@ -461,8 +429,6 @@ rs.resizeCallback = function()
 end
 
 rs.resize = function(windowWidth, windowHeight)
--- Everything updates here.
--- Call this function at love.resize and pass arguments to library. Like this:
 --[[
 love.resize = function(w, h)
   rs.resize(w, h)
@@ -499,9 +465,8 @@ end
 
   else
     
-    -- In short, when you in pixel perect scale mode, if window size is non even, it will result in
-    -- non integer offset values for x and y, which result in pixels bleedingm which is acceptable in
-    -- non pixel pefrect modes, but not here.
+    -- When you in Pixel Pefrect scaling mode (3), if window size is non-even, it will result in
+    -- non-integer offset values for x and y, which result in pixels bleeding.
     if rs.pixelPerfectOffsetsHack and rs.scaleMode == 3 then
       if (windowWidth % 2 ~= 0) then
         windowWidth = windowWidth + 1
@@ -518,42 +483,35 @@ end
     -- Pixel perfect scaling.
     if scaleMode == 3 then
       -- We will floor to nearest int number.
-      -- And we fallback to scale 1, if game size is less then window, so user can see at least something.
+      -- And we fallback to scale 1, if game size is less then window, because when scale == 0, there nothing to see.
       scale = math.max(math.floor(scale), 1)
     end
 
     -- Update offsets.
     xOff, yOff = (windowWidth - (scale * gameWidth)) / 2, (windowHeight - (scale * gameHeight)) / 2
-    -- Update scale
+    -- Update scaling values.
     scaleWidth, scaleHeight = scale, scale
   end
   
-  -- Save values to library.
+  -- Save values to library. --
+  
   -- Black bars.
   rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, windowWidth, yOff                                   --top
   rs.x2, rs.y2, rs.w2, rs.h2 = 0, yOff, xOff, windowHeight - (yOff * 2)                  -- left
   rs.x3, rs.y3, rs.w3, rs.h3 = windowWidth - xOff, yOff, xOff, windowHeight - (yOff * 2) -- right
   rs.x4, rs.y4, rs.w4, rs.h4 = 0, windowHeight - yOff, windowWidth, yOff                 -- bottom
   
-  -- Offset generated by bars.
   rs.xOff, rs.yOff = xOff, yOff
   
-  -- Scale.
   rs.scaleWidth, rs.scaleHeight = scaleWidth, scaleHeight
   
-  -- Window size.
   rs.windowWidth, rs.windowHeight = windowWidth, windowHeight
   
-  -- Game zone.
   rs.gameZone.x = xOff
   rs.gameZone.y = yOff
   rs.gameZone.w = windowWidth - (xOff * 2)
   rs.gameZone.h = windowHeight - (yOff * 2)
-
-  -- Window size.
-  rs.windowWidth, rs.windowHeight = windowWidth, windowHeight
   
-  -- Callback.
   rs.resizeCallback()
 end
 
@@ -640,27 +598,31 @@ rs.unscaleStop = function()
 end
 
 rs.setColor = function(r, g, b, a)
-  -- Set color of bars.
-
+  -- Set color of "black" bars.
+  
+  -- Check if all arguments are on place.
   if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" or type(a) ~= "number" then
       error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".", 2)
   end
   
     -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
+    -- Red
     if r > 1 or r < 0 then
         error(".setColor: Argument \"r\" should be number in-between 0 - 1. You passed: " .. tostring(r) .. ".", 2)
     end
     
-    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
+    -- Green
     if g > 1 or g < 0 then
         error(".setColor: Argument \"g\" should be number in-between 0 - 1. You passed: " .. tostring(g) .. ".", 2)
     end
     
-    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
+    -- Blue
     if b > 1 or b < 0 then
         error(".setColor: Argument \"b\" should be number in-between 0 - 1. You passed: " .. tostring(b) .. ".", 2)
     
-    end    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
+  end
+  
+  -- Alpha
     if a > 1 or a < 0 then
         error(".setColor: Argument \"a\" should be number in-between 0 - 1. You passed: " .. tostring(a) .. ".", 2)
     end
@@ -672,7 +634,7 @@ rs.setColor = function(r, g, b, a)
 end
 
 rs.getColor = function()
-  -- Get red, green, blue and alpha colors of bars.
+  -- Get red, green, blue and alpha componets of "black" bars color.
 
   return rs.r, -- red
          rs.g, -- green
@@ -681,17 +643,12 @@ rs.getColor = function()
 end
 
 rs.getGameZone = function()
-  -- Scaled zone with real screen coordinates.
-  -- Will return 4 values:
-  -- x, y, w, h
-  -- Useful to determine scale zone, to build UI.
-
   local gameZone = rs.gameZone
   return gameZone.x, gameZone.y, gameZone.w, gameZone.h
 end
 
 rs.defaultColor = function()
-  -- Reset colors for bars to default black color.
+  -- Reset color for "black" bars to black color.
 
   rs.r = 0 -- red
   rs.g = 0 -- green
@@ -702,7 +659,6 @@ end
 
 rs.drawBars = function()
   -- Function that will draw bars.
-  -- Can be called manually, if you don't use rs.start() and rs.stop() and scale everything manually somewhere else.
   
   -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
   if rs.scaleMode == 2 then
@@ -711,11 +667,10 @@ rs.drawBars = function()
 
   -- Can we can draw bars?
   if not rs.bars then
-      return
+    return
   end
-
   
-  -- Get colors, that was before rs.stop() function.
+  -- Get color components, that was before rs.stop() function.
   local r, g, b, a = love.graphics.getColor()
   
   -- Prepare to draw bars.
@@ -733,7 +688,7 @@ rs.drawBars = function()
   love.graphics.rectangle("fill", rs.x3, rs.y3, rs.w3, rs.h3) -- right
   love.graphics.rectangle("fill", rs.x4, rs.y4, rs.w4, rs.h4) -- bottom
   
-  -- Return original colors that was before rs.stop()
+  -- Return original color that was before rs.stop()
   love.graphics.setColor(r, g, b, a)
   
   -- End bars rendering.
@@ -742,31 +697,26 @@ end
 
 rs.getScale = function()
   -- Get width and height scale.
-
   return rs.scaleWidth, rs.scaleHeight
 end
 
 rs.setGame = function(width, height)
-  -- Set virtual size which game should be scaled to.
-
+  -- Sanity check for input arguments.
   if type(width) ~= "number" or type(height) ~= "number"  then
       error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
   end
 
   rs.gameWidth = width
   rs.gameHeight = height
+  
   rs.resize()
 end
 
 rs.getGame = function()
-  -- Return game virtual width and height.
-
   return rs.gameWidth, rs.gameHeight
 end
 
 rs.getWindow = function()
-  -- Get window width and height.
-
   return rs.windowWidth, rs.windowHeight
 end
 
@@ -782,19 +732,15 @@ rs.isMouseInside = function()
       end
   --]]
 
-  -- If we in stretch mode (1), then there is no bars, so no reasons to waste time on checks,
-  -- since there is no bars. 
+  -- If we in stretch mode (1), then there is no bars, so mouse always "inside".
   if rs.scaleMode == 2 then
     return true
   end
   
-  -- Get mouse coordinates.
   local mouseX, mouseY = love.mouse.getPosition()
   
-  -- Get offset.
   local xOff, yOff     = rs.xOff, rs.yOff
   
-  -- Get window size.
   local windowWidth    = rs.windowWidth
   local windowHeight   = rs.windowHeight
 
@@ -803,10 +749,12 @@ rs.isMouseInside = function()
      mouseY    >= yOff                 and -- top
      mouseX    <= windowWidth  - xOff  and -- right
      mouseY    <= windowHeight - yOff then -- bottom
+       
+      -- Cursor inside game zone.
      return true
   end
 
-  -- Cursor on bars.
+  -- Cursor outside game zone.
   return false
 end
 

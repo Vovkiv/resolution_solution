@@ -1,1 +1,4 @@
-Here will be stored all version of main library source file.
+Here will be stored all versions of library and documentation (where available).
+.lua files for library itself
+.odt files is source document for documentation
+.pdf files is ready-to-use documentation

@@ -462,9 +462,13 @@ end
 --]]
   windowWidth = windowWidth or love.graphics.getWidth()
   windowHeight = windowHeight or love.graphics.getHeight()
-  -- Check if user passed arguments and they are numbers.
-  if type(windowHeight) ~= "number" or type(windowHeight) ~= "number" then
-    error(".resize: Expected 2 arguments, that should be numbers. You passed: " .. type(windowWidth) .. " and " .. type(windowHeight) .. ". Make sure that you pass arguments from love.resize(w, h) to this function.")
+  
+  -- Check if user passed arguments and if they are numbers.
+  if type(windowWidth) ~= "number" then
+    error(".resize: 1 argument should be number or nil. You passed: " .. type(windowWidth) .. ".")
+  end
+  if type(windowHeight) ~= "number" then
+    error(".resize: 2 argument should be number or nil. You passed: " .. type(windowHeight) .. ".")
   end
 
   -- Scale for game virtual size.

@@ -43,8 +43,6 @@ For more information, please refer to <https://unlicense.org>
 -- 3 Pixel Perfect scaling
 rs.scaleMode = 1
 
-rs.pixelPerfectOffsetsHack = true
-
 rs.scaleWidth, rs.scaleHeight = 0, 0
 
 rs.gameWidth, rs.gameHeight    = 800, 600
@@ -74,6 +72,8 @@ rs.gameZone = {
 
 -- Render debug window when rs.debugFunc() called?
 rs.debug = true
+
+rs.pixelPerfectOffsetsHack = true
 
 ----------------------------------------------------------------------
 --                        Library functions                         --
@@ -202,7 +202,7 @@ rs.init = function(options)
       rs.pixelPerfectOffsetsHack  = options.hack
   end
 
-  -- Update library with new parameters
+  -- Update library with new parameters.
   rs.resize()
 end
 
@@ -414,7 +414,7 @@ rs.debugFunc = function(debugX, debugY)
   
   -- Set width and height for debug "window".
   local debugWidth = 200 + debugLeftOffset
-  local debugHeight = 240 + debugTopOffset
+  local debugHeight = 230 + debugTopOffset
 
   local windowWidth = rs.windowWidth
   local windowHeight = rs.windowHeight
@@ -504,7 +504,8 @@ rs.debugFunc = function(debugX, debugY)
     "yOff: " .. tostring(rs.yOff) .. "\n" ..
     "pixelPerfectOffsetsHack: " .. tostring(rs.pixelPerfectOffsetsHack) .. "\n" ..
     "filter: " .. tostring(select(1, love.graphics.getDefaultFilter())) .. "\n" ..
-    "anisotropy: " .. tostring(select(3, love.graphics.getDefaultFilter())) .. "\n",
+    "anisotropy: " .. tostring(select(3, love.graphics.getDefaultFilter())) .. "\n" ..
+    "isMouseInside: " .. tostring(rs.isMouseInside()),
     debugX + debugLeftOffset, debugY + debugTopOffset, debugWidth)
 
   -- Return colors.
@@ -728,35 +729,19 @@ rs.getWindow = function()
 end
 
 rs.isMouseInside = function()
-  -- Determine if cursor inside scaled area and don't touch bars.
-  -- Use it when you need detect if cursor touch in-game objects, without false detection on bars zone.
-  --Use it like this:
-  --[[
-      love.mousepressed = function(x, y, button, istouch, presses)
-        if rs.isMouseInside and button == 1 then
-          print("Hello, World!")
-        end 
-      end
-  --]]
-
-  -- If we in stretch mode (1), then there is no bars, so mouse always "inside".
-  if rs.scaleMode == 2 then
+  -- If we in Stretch Scaling mode (2), then there is no bars, so mouse always "inside".
+    if rs.scaleMode == 2 then
     return true
   end
   
   local mouseX, mouseY = love.mouse.getPosition()
-  
-  local xOff, yOff     = rs.xOff, rs.yOff
-  
-  local windowWidth    = rs.windowWidth
-  local windowHeight   = rs.windowHeight
+  local x, y, w, h = rs.getGameZone()
 
   -- Check if cursor inside game zone.
-  if mouseX    >= xOff                 and -- left
-     mouseY    >= yOff                 and -- top
-     mouseX    <= windowWidth  - xOff  and -- right
-     mouseY    <= windowHeight - yOff then -- bottom
-       
+  if mouseX    >= x                 and -- left
+     mouseY    >= y                 and -- top
+     mouseX    <= x + w             and -- right
+     mouseY    <= y + h            then -- bottom
       -- Cursor inside game zone.
      return true
   end

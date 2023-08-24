@@ -244,15 +244,6 @@ rs.setScaleMode = function(mode)
     rs.resize()
 end
 rs.switchScaleMode = function(side)
-  -- You can use it like this:
-  --[[
-  love.keypressed = function(key)
-    if key == "f3" then
-      rs.switchScaleMode()
-    end
-  end
-  --]]
-
   -- Default order is +1.
   side = side or 1
 
@@ -389,16 +380,6 @@ rs.getColor = function()
 end
 
 rs.switchDebug = function()
-  -- Turn on/off debug function.
--- Use it like this:
---[[
-love.keypressed = function(key)
-    if key == "f1" then
-      rs.switchDebug()
-    end
-end
---]]
-
   rs.debug = not rs.debug
 end
 
@@ -501,11 +482,6 @@ rs.nearestFilter = function(filter, anisotropy)
 end
 
 rs.resize = function(windowWidth, windowHeight)
---[[
-love.resize = function(w, h)
-  rs.resize(w, h)
-end
---]]
   windowWidth = windowWidth or love.graphics.getWidth()
   windowHeight = windowHeight or love.graphics.getHeight()
   
@@ -591,17 +567,6 @@ rs.resizeCallback = function()
 end
 
 rs.start = function()
-  -- Start scaling graphics until rs.stop().
-  -- Everything inside this function will be scaled to fit virtual game size.
-  -- Place it in love.draw() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-  
-    rs.stop()
-  end
-  --]]
-
   -- Prepare to scale.
   love.graphics.push()
   
@@ -616,16 +581,6 @@ rs.start = function()
 end
 
 rs.stop = function()
-  -- Stop scaling caused by rs.start().
-  -- Place it in love.draw() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-  
-    rs.stop()
-  end
-  --]]
-
   -- Stop scaling.
   love.graphics.pop()
 
@@ -684,7 +639,7 @@ end
 
 rs.isMouseInside = function()
   -- If we in Stretch Scaling mode (2), then there is no bars, so mouse always "inside".
-    if rs.scaleMode == 2 then
+  if rs.scaleMode == 2 then
     return true
   end
   

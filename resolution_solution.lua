@@ -212,6 +212,8 @@ rs.getGameZone = function()
 end
 
 rs.setGame = function(width, height)
+  -- Virtual size for game that library will scale to.
+  
   -- Sanity check for input arguments.
   if type(width) ~= "number" or type(height) ~= "number"  then
       error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
@@ -275,6 +277,7 @@ end
 
 rs.setMode = function(width, height, flags)
   -- Wrapper for love.window.setMode()
+  
   local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
   if not okay then
     error(".setMode: Error: " .. errorMessage, 2)
@@ -284,7 +287,6 @@ rs.setMode = function(width, height, flags)
   rs.resize()
 end
 
-
 rs.switchPixelHack = function()
   rs.pixelPerfectOffsetsHack = not rs.pixelPerfectOffsetsHack
   rs.resize()
@@ -293,6 +295,7 @@ end
 rs.switchBars = function()
   rs.bars = not rs.bars
 end
+
 rs.drawBars = function()
   -- Function that will draw bars.
   
@@ -330,6 +333,7 @@ rs.drawBars = function()
   -- End bars rendering.
   love.graphics.pop()
 end
+
 rs.setColor = function(r, g, b, a)
   -- Set color of "black" bars.
   
@@ -383,6 +387,7 @@ rs.getColor = function()
          rs.b, -- blue
          rs.a  -- alpha
 end
+
 rs.switchDebug = function()
   -- Turn on/off debug function.
 -- Use it like this:
@@ -396,6 +401,7 @@ end
 
   rs.debug = not rs.debug
 end
+
 rs.debugFunc = function(debugX, debugY)
   -- Function used to render debug info on-screen.
   
@@ -508,8 +514,6 @@ rs.debugFunc = function(debugX, debugY)
   love.graphics.setFont(oldFont)
 end
 
-
-
 rs.nearestFilter = function(filter, anisotropy)
   -- Sanity check for filter argument.
   if filter == nil then
@@ -577,7 +581,6 @@ end
     scaleHeight = windowHeight / gameHeight
 
   else
-    
     -- When you in Pixel Pefrect scaling mode (3), if window size is non-even, it will result in
     -- non-integer offset values for x and y, which result in pixels bleeding.
     if rs.pixelPerfectOffsetsHack and rs.scaleMode == 3 then
@@ -606,7 +609,7 @@ end
     scaleWidth, scaleHeight = scale, scale
   end
   
-  -- Save values to library. --
+  -- Save values to library --
   
   -- Black bars.
   rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, windowWidth, yOff                                   --top
@@ -716,6 +719,7 @@ end
 
 rs.getScale = function()
   -- Get width and height scale.
+  
   return rs.scaleWidth, rs.scaleHeight
 end
 

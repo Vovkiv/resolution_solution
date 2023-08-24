@@ -33,23 +33,51 @@ OTHER DEALINGS IN THE SOFTWARE.
 For more information, please refer to <https://unlicense.org>
 ]]
 }
--- Wrapper for love.window.setMode()
-rs.setMode = function(width, height, flags)
-  local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
-  if not okay then
-    error(".setMode: Error: " .. errorMessage, 2)
-  end
-  
-  -- Since we potentially changed here window size, we need to recalculate all data.
-  rs.resize()
-end
+
+----------------------------------------------------------------------
+--                        Library variables                         --
+----------------------------------------------------------------------
+
+-- 1 Aspect Ascaling
+-- 2 Stretched Scaling
+-- 3 Pixel Perfect scaling
+rs.scaleMode = 1
 
 rs.pixelPerfectOffsetsHack = true
 
-rs.switchPixelHack = function()
-  rs.pixelPerfectOffsetsHack = not rs.pixelPerfectOffsetsHack
-  rs.resize()
-end
+rs.scaleWidth, rs.scaleHeight = 0, 0
+
+rs.gameWidth, rs.gameHeight    = 800, 600
+
+rs.windowWidth, rs.windowHeight  = 0, 0
+
+rs.xOff, rs.yOff = 0, 0
+
+-- Black bars.
+rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, 0, 0 -- top (1)
+rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0 -- left (2)
+rs.x3, rs.y3, rs.w3, rs.h3 = 0, 0, 0, 0 -- right (3)
+rs.x4, rs.y4, rs.w4, rs.h4 = 0, 0, 0, 0 -- bottom (4)
+
+-- Color for "black" bars
+rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
+
+-- Render black bars?
+rs.bars  = true
+
+rs.gameZone = {
+  x = 0,
+  y = 0,
+  w = 0,
+  h = 0
+}
+
+-- Render debug window when rs.debugFunc() called?
+rs.debug = true
+
+----------------------------------------------------------------------
+--                        Library functions                         --
+----------------------------------------------------------------------
 
 rs.init = function(options)
   if type(options) ~= "nil" and type(options) ~= "table" then
@@ -178,10 +206,26 @@ rs.init = function(options)
   rs.resize()
 end
 
--- 1 Aspect Ascaling
--- 2 Stretched Scaling
--- 3 Pixel Perfect scaling
-rs.scaleMode    = 1
+rs.getGameZone = function()
+  local gameZone = rs.gameZone
+  return gameZone.x, gameZone.y, gameZone.w, gameZone.h
+end
+
+rs.setGame = function(width, height)
+  -- Sanity check for input arguments.
+  if type(width) ~= "number" or type(height) ~= "number"  then
+      error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
+  end
+
+  rs.gameWidth = width
+  rs.gameHeight = height
+  
+  rs.resize()
+end
+
+rs.getGame = function()
+  return rs.gameWidth, rs.gameHeight
+end
 
 rs.setScaleMode = function(mode)
   -- Sanity check for input argument.
@@ -229,25 +273,131 @@ rs.switchScaleMode = function(side)
   rs.resize()
 end
 
--- Render black bars?
-rs.bars  = true
-
---[[
-love.keypressed = function(key)
-    if key == "f2" then
-      rs.switchBars()
-    end
+rs.setMode = function(width, height, flags)
+  -- Wrapper for love.window.setMode()
+  local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
+  if not okay then
+    error(".setMode: Error: " .. errorMessage, 2)
+  end
+  
+  -- Since we potentially changed here window size, we need to recalculate all data.
+  rs.resize()
 end
---]]
+
+
+rs.switchPixelHack = function()
+  rs.pixelPerfectOffsetsHack = not rs.pixelPerfectOffsetsHack
+  rs.resize()
+end
+
 rs.switchBars = function()
   rs.bars = not rs.bars
 end
+rs.drawBars = function()
+  -- Function that will draw bars.
+  
+  -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
+  if rs.scaleMode == 2 then
+    return
+  end
 
--- Render debug window once called rs.debugFunc()?
-rs.debug = true
+  -- Can we can draw bars?
+  if not rs.bars then
+    return
+  end
+  
+  -- Get color components, that was before rs.stop() function.
+  local r, g, b, a = love.graphics.getColor()
+  
+  -- Prepare to draw bars.
+  love.graphics.push()
+  
+  -- Reset transformation.
+  love.graphics.origin()
 
--- Function used to render debug info on-screen.
+  -- Set color for bars.
+  love.graphics.setColor(rs.r, rs.g, rs.b, rs.a)
+
+  -- Draw bars.
+  love.graphics.rectangle("fill", rs.x1, rs.y1, rs.w1, rs.h1) -- top
+  love.graphics.rectangle("fill", rs.x2, rs.y2, rs.w2, rs.h2) -- left
+  love.graphics.rectangle("fill", rs.x3, rs.y3, rs.w3, rs.h3) -- right
+  love.graphics.rectangle("fill", rs.x4, rs.y4, rs.w4, rs.h4) -- bottom
+  
+  -- Return original color that was before rs.stop()
+  love.graphics.setColor(r, g, b, a)
+  
+  -- End bars rendering.
+  love.graphics.pop()
+end
+rs.setColor = function(r, g, b, a)
+  -- Set color of "black" bars.
+  
+  -- Check if all arguments are on place.
+  if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" or type(a) ~= "number" then
+      error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".", 2)
+  end
+  
+    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
+    -- Red
+    if r > 1 or r < 0 then
+        error(".setColor: Argument \"r\" should be number in-between 0 - 1. You passed: " .. tostring(r) .. ".", 2)
+    end
+    
+    -- Green
+    if g > 1 or g < 0 then
+        error(".setColor: Argument \"g\" should be number in-between 0 - 1. You passed: " .. tostring(g) .. ".", 2)
+    end
+    
+    -- Blue
+    if b > 1 or b < 0 then
+        error(".setColor: Argument \"b\" should be number in-between 0 - 1. You passed: " .. tostring(b) .. ".", 2)
+    
+  end
+  
+  -- Alpha
+    if a > 1 or a < 0 then
+        error(".setColor: Argument \"a\" should be number in-between 0 - 1. You passed: " .. tostring(a) .. ".", 2)
+    end
+
+  rs.r = r -- red
+  rs.g = g -- green
+  rs.b = b -- blue
+  rs.a = a -- alpha
+end
+
+rs.defaultColor = function()
+  -- Reset color for "black" bars to black color.
+
+  rs.r = 0 -- red
+  rs.g = 0 -- green
+  rs.b = 0 -- blue
+  rs.a = 1 -- alpha
+end
+
+rs.getColor = function()
+  -- Get red, green, blue and alpha componets of "black" bars color.
+
+  return rs.r, -- red
+         rs.g, -- green
+         rs.b, -- blue
+         rs.a  -- alpha
+end
+rs.switchDebug = function()
+  -- Turn on/off debug function.
+-- Use it like this:
+--[[
+love.keypressed = function(key)
+    if key == "f1" then
+      rs.switchDebug()
+    end
+end
+--]]
+
+  rs.debug = not rs.debug
+end
 rs.debugFunc = function(debugX, debugY)
+  -- Function used to render debug info on-screen.
   
   -- If debug disabled, there no point in wasting time on futher actions.
   if not rs.debug then return end
@@ -358,40 +508,7 @@ rs.debugFunc = function(debugX, debugY)
   love.graphics.setFont(oldFont)
 end
 
--- Turn on/off debug function.
--- Use it like this:
---[[
-love.keypressed = function(key)
-    if key == "f1" then
-      rs.switchDebug()
-    end
-end
---]]
-rs.switchDebug = function()
-  rs.debug = not rs.debug
-end
 
-rs.scaleWidth, rs.scaleHeight = 0, 0
-
-rs.gameWidth, rs.gameHeight    = 800, 600
-
-rs.windowWidth, rs.windowHeight  = 0, 0
-
-rs.xOff, rs.yOff = 0, 0
-
-rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, 0, 0 -- top (1)
-rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0 -- left (2)
-rs.x3, rs.y3, rs.w3, rs.h3 = 0, 0, 0, 0 -- right (3)
-rs.x4, rs.y4, rs.w4, rs.h4 = 0, 0, 0, 0 -- bottom (4)
-
-rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
-
-rs.gameZone = {
-  x = 0,
-  y = 0,
-  w = 0,
-  h = 0
-}
 
 rs.nearestFilter = function(filter, anisotropy)
   -- Sanity check for filter argument.
@@ -422,10 +539,6 @@ rs.nearestFilter = function(filter, anisotropy)
   if not okay then
     error(".nearestFilter: Error: " .. errorMessage, 2)
   end
-end
-
-rs.resizeCallback = function()
-  
 end
 
 rs.resize = function(windowWidth, windowHeight)
@@ -515,6 +628,10 @@ end
   rs.resizeCallback()
 end
 
+rs.resizeCallback = function()
+  
+end
+
 rs.start = function()
   -- Start scaling graphics until rs.stop().
   -- Everything inside this function will be scaled to fit virtual game size.
@@ -597,123 +714,9 @@ rs.unscaleStop = function()
   love.graphics.pop()
 end
 
-rs.setColor = function(r, g, b, a)
-  -- Set color of "black" bars.
-  
-  -- Check if all arguments are on place.
-  if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" or type(a) ~= "number" then
-      error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".", 2)
-  end
-  
-    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
-    -- Red
-    if r > 1 or r < 0 then
-        error(".setColor: Argument \"r\" should be number in-between 0 - 1. You passed: " .. tostring(r) .. ".", 2)
-    end
-    
-    -- Green
-    if g > 1 or g < 0 then
-        error(".setColor: Argument \"g\" should be number in-between 0 - 1. You passed: " .. tostring(g) .. ".", 2)
-    end
-    
-    -- Blue
-    if b > 1 or b < 0 then
-        error(".setColor: Argument \"b\" should be number in-between 0 - 1. You passed: " .. tostring(b) .. ".", 2)
-    
-  end
-  
-  -- Alpha
-    if a > 1 or a < 0 then
-        error(".setColor: Argument \"a\" should be number in-between 0 - 1. You passed: " .. tostring(a) .. ".", 2)
-    end
-
-  rs.r = r -- red
-  rs.g = g -- green
-  rs.b = b -- blue
-  rs.a = a -- alpha
-end
-
-rs.getColor = function()
-  -- Get red, green, blue and alpha componets of "black" bars color.
-
-  return rs.r, -- red
-         rs.g, -- green
-         rs.b, -- blue
-         rs.a  -- alpha
-end
-
-rs.getGameZone = function()
-  local gameZone = rs.gameZone
-  return gameZone.x, gameZone.y, gameZone.w, gameZone.h
-end
-
-rs.defaultColor = function()
-  -- Reset color for "black" bars to black color.
-
-  rs.r = 0 -- red
-  rs.g = 0 -- green
-  rs.b = 0 -- blue
-  rs.a = 1 -- alpha
-end
-
-
-rs.drawBars = function()
-  -- Function that will draw bars.
-  
-  -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
-  if rs.scaleMode == 2 then
-    return
-  end
-
-  -- Can we can draw bars?
-  if not rs.bars then
-    return
-  end
-  
-  -- Get color components, that was before rs.stop() function.
-  local r, g, b, a = love.graphics.getColor()
-  
-  -- Prepare to draw bars.
-  love.graphics.push()
-  
-  -- Reset transformation.
-  love.graphics.origin()
-
-  -- Set color for bars.
-  love.graphics.setColor(rs.r, rs.g, rs.b, rs.a)
-
-  -- Draw bars.
-  love.graphics.rectangle("fill", rs.x1, rs.y1, rs.w1, rs.h1) -- top
-  love.graphics.rectangle("fill", rs.x2, rs.y2, rs.w2, rs.h2) -- left
-  love.graphics.rectangle("fill", rs.x3, rs.y3, rs.w3, rs.h3) -- right
-  love.graphics.rectangle("fill", rs.x4, rs.y4, rs.w4, rs.h4) -- bottom
-  
-  -- Return original color that was before rs.stop()
-  love.graphics.setColor(r, g, b, a)
-  
-  -- End bars rendering.
-  love.graphics.pop()
-end
-
 rs.getScale = function()
   -- Get width and height scale.
   return rs.scaleWidth, rs.scaleHeight
-end
-
-rs.setGame = function(width, height)
-  -- Sanity check for input arguments.
-  if type(width) ~= "number" or type(height) ~= "number"  then
-      error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
-  end
-
-  rs.gameWidth = width
-  rs.gameHeight = height
-  
-  rs.resize()
-end
-
-rs.getGame = function()
-  return rs.gameWidth, rs.gameHeight
 end
 
 rs.getWindow = function()

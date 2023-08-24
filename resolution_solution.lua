@@ -299,13 +299,13 @@ end
 rs.drawBars = function()
   -- Function that will draw bars.
   
-  -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
-  if rs.scaleMode == 2 then
-    return
-  end
-
   -- Can we can draw bars?
   if not rs.bars then
+    return
+  end
+  
+  -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
+  if rs.scaleMode == 2 then
     return
   end
   
@@ -408,69 +408,23 @@ rs.debugFunc = function(debugX, debugY)
   -- If debug disabled, there no point in wasting time on futher actions.
   if not rs.debug then return end
   
-  -- Offsets so it will bea easier to read text.
-  local debugLeftOffset = 5
-  local debugTopOffset = 5
-  
   -- Set width and height for debug "window".
-  local debugWidth = 200 + debugLeftOffset
-  local debugHeight = 230 + debugTopOffset
-
-  local windowWidth = rs.windowWidth
-  local windowHeight = rs.windowHeight
+  local debugWidth = 230
+  local debugHeight = 230
   
   -- Default position is top-left corner of window.
-  debugX = debugX or "left"
-  debugY = debugY or "top"
+  debugX = debugX or 0
+  debugY = debugY or 0
   
   -- Do sanity check for input arguments.
-  if (type(debugX) ~= "string" and type(debugX) ~= "number") then
-    error(".debugFunc: 1st argument should be string or number or nil. You passed: " .. type(debugX) .. ".", 2)
+  if type(debugX) ~= "number" then
+    error(".debugFunc: 1st argument should be number or nil. You passed: " .. type(debugX) .. ".", 2)
   end
   
-  if (type(debugY) ~= "string" and type(debugY) ~= "number") then
-    error(".debugFunc: 2nd argument should be string or number or nil. You passed: " .. type(debugY) .. ".", 2)
+  if type(debugY) ~= "number" then
+    error(".debugFunc: 2nd argument should be number or nil. You passed: " .. type(debugY) .. ".", 2)
   end
   
-  -- Translate string to actual coordinates.
-  if type(debugX) == "string" then
-    
-    if debugX == "left" then
-      debugX = 0
-    elseif debugX == "right" then
-      debugX = windowWidth - debugWidth
-    end
-  -- If number, then place it where number says.
-  elseif type(debugX) == "number" then
-    
-    if debugX < 0 then
-      debugX = 0
-    end
-    
-    if debugX > windowWidth - debugWidth then
-      debugX = windowWidth - debugWidth
-    end
-  end
-  
-  -- Translate string to actual coordinates.
-  if type(debugY) == "string" then
-    
-    if debugY == "top" then
-      debugY = 0
-    elseif debugY == "bottom" then
-      debugY = windowHeight - debugHeight
-    end
-  -- If number, then place it where number says.
-  elseif type(debugY) == "number" then
-    
-    if debugY < 0 then
-      debugY = 0
-    end
-    
-    if debugY > windowHeight - debugWidth then
-      debugY = windowHeight - debugWidth
-    end
-  end
   
   -- Save color that was before debug function.
   local r, g, b, a = love.graphics.getColor()
@@ -503,10 +457,10 @@ rs.debugFunc = function(debugX, debugY)
     "xOff: " .. tostring(rs.xOff) .. "\n" ..
     "yOff: " .. tostring(rs.yOff) .. "\n" ..
     "pixelPerfectOffsetsHack: " .. tostring(rs.pixelPerfectOffsetsHack) .. "\n" ..
-    "filter: " .. tostring(select(1, love.graphics.getDefaultFilter())) .. "\n" ..
+    "filter: " .. "min: " .. tostring(select(1, love.graphics.getDefaultFilter())) .. ", mag: " .. tostring(select(2, love.graphics.getDefaultFilter())) .. "\n" ..
     "anisotropy: " .. tostring(select(3, love.graphics.getDefaultFilter())) .. "\n" ..
     "isMouseInside: " .. tostring(rs.isMouseInside()),
-    debugX + debugLeftOffset, debugY + debugTopOffset, debugWidth)
+    debugX, debugY, debugWidth)
 
   -- Return colors.
   love.graphics.setColor(r, g, b, a)

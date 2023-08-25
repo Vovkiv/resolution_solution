@@ -136,7 +136,7 @@ rs.init = function(options)
       rs.scaleMode  = options.mode
   end
 
-  -- Red from RGBA for bars.
+  -- Red component.
   -- If user passed .r parameter, check it for being number.
   if options.r then
       if type(options.r) ~= "number" then
@@ -151,7 +151,7 @@ rs.init = function(options)
       rs.r  = options.r
   end
 
-  -- Green from RGBA for bars.
+  -- Green component.
   if options.g then
       if type(options.g) ~= "number" then
         error(".init: table field \".g\" should be number. You passed: " .. type(options.g) .. ".", 2)
@@ -165,7 +165,7 @@ rs.init = function(options)
       rs.g  = options.g
   end
 
-  -- Blue from RGBA for bars.
+  -- Blue component.
   if options.b then
       if type(options.b) ~= "number" then
         error(".init: table field \".b\" should be number. You passed: " .. type(options.b) .. ".", 2)
@@ -179,7 +179,7 @@ rs.init = function(options)
       rs.b  = options.b
   end
 
-  -- Alpha from RGBA for bars.
+  -- Alpha channel.
   if options.a then
       if type(options.a) ~= "number" then
         error(".init: table field \".a\" should be number. You passed: " .. type(options.a) .. ".", 2)
@@ -295,7 +295,7 @@ rs.drawBars = function()
     return
   end
   
-  -- Scale mode 2 is stretch, so no need waste time on bars rendering at all.
+  -- In Stretch Scaling mode there no bars.
   if rs.scaleMode == 2 then
     return
   end
@@ -561,9 +561,7 @@ rs.resize = function(windowWidth, windowHeight)
   rs.resizeCallback()
 end
 
-rs.resizeCallback = function()
-  
-end
+rs.resizeCallback = function() end
 
 rs.start = function()
   -- Prepare to scale.
@@ -610,7 +608,7 @@ rs.getWindow = function()
 end
 
 rs.isMouseInside = function()
-  -- If we in Stretch Scaling mode (2), then there is no bars, so mouse always "inside".
+  -- If we in Stretch Scaling mode, then there is no bars, so mouse always "inside".
   if rs.scaleMode == 2 then
     return true
   end
@@ -627,30 +625,11 @@ rs.isMouseInside = function()
      return true
   end
 
-  -- Cursor outside game zone.
+  -- Cursor outside of game zone.
   return false
 end
 
 rs.toGame = function(x, y)
-  -- Translate coordinates from non-scaled values to scaled;
-  -- e.g translate real mouse coordinates into scaled so you can check
-  -- for example, area to check collisions with object and cursor.
-  -- Use it like this:
-  --[[
-love.mousepressed = function(x, y, button, istouch, presses)
-  if RS.isMouseInside() and button == 1 then
-      local mx, my = RS.toGame(love.mouse.getPosition())
-      if mx    >= 100                   and -- left
-         my    >= 100                   and -- top
-         mx    <= 100         +    100  and -- right
-         my    <= 100         +    100  then -- bottom
-        print("You clicked in rectangle of: 100, 100, 100, 100!")
-      end
-
-    end 
-  end
-  --]]
-
   if type(x) ~= "number" or type(y) ~= "number" then
     error(".toGame: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".", 2)
   end
@@ -659,10 +638,6 @@ love.mousepressed = function(x, y, button, istouch, presses)
 end
 
 rs.toGameX = function(x)
-  -- Translate x coordinate from non-scaled to scaled
-  -- e.g translate real mouse coordinates into scaled so you can check
-  -- for example, area to check collisions with object and cursor.
-
   if type(x) ~= "number" then
     error(".toGameX: Expected argument, that should be number. You passed: " .. type(x) .. ".", 2)
   end
@@ -671,10 +646,6 @@ rs.toGameX = function(x)
 end
 
 rs.toGameY = function(y) 
-  -- Translate y coordinate from non-scaled to scaled
-  -- e.g translate real mouse coordinates into scaled so you can check
-  -- for example, area to check collisions with object and cursor;
-
   if type(y) ~= "number" then
     error(".toGameY: Expected argument, that should be number. You passed: " .. type(y) .. ".", 2)
   end
@@ -683,22 +654,6 @@ rs.toGameY = function(y)
 end
 
 rs.toScreen = function(x, y)
-  -- Thanslate coordinates from scaled to non scaled.
-  -- e.g translate x and y of object inside scaled area
-  -- to, for example, set cursor position to that object
-  -- Use it like this:
-  --[[
-  ingameObject = {x = 200, y = 200}
-  love.draw = function()
-    rs.start()
-    love.graphics.rectangle("fill", ingameObject.x, ingameObject.y, 100, 100)
-    if RS.toGameX(love.mouse.getX()) > ingameObject.x then
-        love.mouse.setPosition(RS.toScreenX(ingameObject.x), love.mouse.getY())
-    end
-    rs.stop()
-  end
-  --]]
-  
   if type(x) ~= "number" or type(y) ~= "number" then
     error(".toScreen: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".", 2)
   end
@@ -707,10 +662,6 @@ rs.toScreen = function(x, y)
 end
 
 rs.toScreenX = function(x)
-  -- Thanslate x coordinate from scaled to non scaled.
-  -- e.g translate x of object inside scaled area
-  -- to, for example, set cursor position to that object
-  
   if type(x) ~= "number" then
     error(".toScreenX: Expected argument, that should be number. You passed: " .. type(x) .. ".", 2)
   end
@@ -719,10 +670,6 @@ rs.toScreenX = function(x)
 end
 
 rs.toScreenY = function(y)
-  -- Thanslate y coordinate from scaled to non scaled.
-  -- e.g translate y of object inside scaled area
-  -- to, for example, set cursor position to that object
-  
   if type(y) ~= "number" then
     error(".toScreenY: Expected argument, that should be number. You passed: " .. type(y) .. ".", 2)
   end

@@ -57,7 +57,7 @@ rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0 -- left (2)
 rs.x3, rs.y3, rs.w3, rs.h3 = 0, 0, 0, 0 -- right (3)
 rs.x4, rs.y4, rs.w4, rs.h4 = 0, 0, 0, 0 -- bottom (4)
 
--- Color for "black" bars
+-- Color for bars.
 rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
 
 -- Render black bars?
@@ -127,7 +127,7 @@ rs.init = function(options)
       if type(options.mode) ~= "number" then
         error(".init: table field \".mode\" should be number. You passed: " .. type(options.mode) .. ".", 2)
       end
-      
+
       -- Check for out of bounds.
       if options.mode > 3 or options.mode < 1 then
         error(".init: table field \".mode\" should be 1, 2 or 3. You passed: " .. tostring(options.mode) .. ".", 2)
@@ -142,7 +142,7 @@ rs.init = function(options)
       if type(options.r) ~= "number" then
         error(".init: table field \".r\" should be number. You passed: " .. type(options.r) .. ".", 2)
       end
-      
+
       -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
       if options.r > 1 or options.r < 0 then
          error(".init: table field \".r\" should be in-between 0 to 1. You passed: " .. tostring(options.r) .. ".", 2)
@@ -156,7 +156,7 @@ rs.init = function(options)
       if type(options.g) ~= "number" then
         error(".init: table field \".g\" should be number. You passed: " .. type(options.g) .. ".", 2)
       end
-      
+
       -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
       if options.g > 1 or options.g < 0 then
          error(".init: table field \".g\" should be in-between 0 to 1. You passed: " .. tostring(options.g) .. ".", 2)
@@ -213,7 +213,7 @@ end
 
 rs.setGame = function(width, height)
   -- Virtual size for game that library will scale to.
-  
+
   -- Sanity check for input arguments.
   if type(width) ~= "number" or type(height) ~= "number"  then
       error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
@@ -221,7 +221,7 @@ rs.setGame = function(width, height)
 
   rs.gameWidth = width
   rs.gameHeight = height
-  
+
   rs.resize()
 end
 
@@ -268,12 +268,12 @@ end
 
 rs.setMode = function(width, height, flags)
   -- Wrapper for love.window.setMode()
-  
+
   local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
   if not okay then
     error(".setMode: Error: " .. errorMessage, 2)
   end
-  
+
   -- Since we potentially changed here window size, we need to recalculate all data.
   rs.resize()
 end
@@ -385,14 +385,14 @@ end
 
 rs.debugFunc = function(debugX, debugY)
   -- Function used to render debug info on-screen.
-  
+
   -- If debug disabled, there no point in wasting time on futher actions.
   if not rs.debug then return end
-  
+
   -- Set width and height for debug "window".
   local debugWidth = 230
   local debugHeight = 230
-  
+
   -- Default position is top-left corner of window.
   debugX = debugX or 0
   debugY = debugY or 0
@@ -401,15 +401,14 @@ rs.debugFunc = function(debugX, debugY)
   if type(debugX) ~= "number" then
     error(".debugFunc: 1st argument should be number or nil. You passed: " .. type(debugX) .. ".", 2)
   end
-  
+
   if type(debugY) ~= "number" then
     error(".debugFunc: 2nd argument should be number or nil. You passed: " .. type(debugY) .. ".", 2)
   end
-  
-  
+
   -- Save color that was before debug function.
   local r, g, b, a = love.graphics.getColor()
-  
+
   -- Save font that was before debug function.
   local oldFont = love.graphics.getFont()
 
@@ -588,20 +587,7 @@ rs.stop = function()
   rs.drawBars()
 end
 
-rs.unscaleStart = function()
-  -- Reset scaling with love.origin() until rs.unscaleStop().
-  -- With that you can, for example, draw UI with custom scaling, fonts, etc.
-  -- Place it in-between rs.start() and rs.stop() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-      rs.unscaleStart()
-
-      rs.unscaleStop()
-    rs.stop()
-  end
-  --]]
-  
+rs.unscaleStart = function()  
   -- Start unscaling.
   love.graphics.push()
   
@@ -610,20 +596,6 @@ rs.unscaleStart = function()
 end
 
 rs.unscaleStop = function()
-  -- Stop scaling caused by rs.unscaleStart().
-  -- With that you can, for example, draw UI with custom scaling, fonts, etc.
-  -- Place it in-between rs.start() and rs.stop() like this:
-  --[[
-  love.draw = function()
-    rs.start()
-      rs.unscaleStart()
-
-      rs.unscaleStop()
-    rs.stop()
-  end
-  --]]
-
-  -- Stop unscaling.
   love.graphics.pop()
 end
 

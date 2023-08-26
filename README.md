@@ -10,7 +10,7 @@ Other similar libraries:
 * Center (https://github.com/S-Walrus/center)
 * maid64 (https://github.com/adekto/maid64)
 
-# Selling point of this library:
+# Selling points of this library:
 * Library have 3 scale modes and you can switch between at any time:
 
 1 Aspect Scaling mode - scaling with preverved aspect.

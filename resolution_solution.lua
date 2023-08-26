@@ -1,7 +1,7 @@
 local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
   _DOCUMENTATION = "",
-  _VERSION = 2002,
+  _VERSION = 3000,
   _LOVE = 11.4, -- love2d version for which this library designed for.
   _DESCRIPTION = "Yet another scaling library.",
   _NAME = "Resolution Solution",
@@ -41,353 +41,145 @@ For more information, please refer to <https://unlicense.org>
 -- 1 Aspect Ascaling
 -- 2 Stretched Scaling
 -- 3 Pixel Perfect scaling
-rs.scaleMode = 1
+rs.scale_mode = 1
 
-rs.scaleWidth, rs.scaleHeight = 0, 0
+rs.scale_width, rs.scale_height = 0, 0
 
-rs.gameWidth, rs.gameHeight    = 800, 600
+rs.game_width, rs.game_height = 800, 600
 
-rs.windowWidth, rs.windowHeight  = 0, 0
+rs.x_offset, rs.y_offset = 0, 0
 
-rs.xOff, rs.yOff = 0, 0
-
--- Black bars.
-rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, 0, 0 -- top (1)
-rs.x2, rs.y2, rs.w2, rs.h2 = 0, 0, 0, 0 -- left (2)
-rs.x3, rs.y3, rs.w3, rs.h3 = 0, 0, 0, 0 -- right (3)
-rs.x4, rs.y4, rs.w4, rs.h4 = 0, 0, 0, 0 -- bottom (4)
-
--- Color for bars.
-rs.r, rs.g, rs.b, rs.a = 0, 0, 0, 1
-
--- Render black bars?
-rs.bars  = true
-
-rs.gameZone = {
+rs.game_zone = {
   x = 0,
   y = 0,
   w = 0,
   h = 0
 }
 
--- Render debug window when rs.debugFunc() called?
-rs.debug = true
-
-rs.pixelPerfectOffsetsHack = true
-
 ----------------------------------------------------------------------
---                        Library functions                         --
+--                        Essential functions                       --
 ----------------------------------------------------------------------
 
-rs.init = function(options)
-  if type(options) ~= "nil" and type(options) ~= "table" then
-    error(".init: Expected table or nil argument. You passed: " .. type(options) .. ".", 2)
-  end
-
-  options = options or {}
-
-  -- Game width.
-  if options.width then
-      if type(options.width) ~= "number" then
-        error(".init: table field \".width\" should be number. You passed: " .. type(options.width) .. ".", 2)
-      end
-
-      rs.gameWidth  = options.width
-  end
-
-  -- Game height.
-  if options.height then
-      if type(options.height) ~= "number" then
-        error(".init: table field \".height\" should be number. You passed: " .. type(options.height) .. ".", 2)
-      end
-
-      rs.gameHeight  = options.height
-  end
-
-  -- Render bars?
-  if options.bars ~= nil then
-      if type(options.bars) ~= "boolean" then
-        error(".init: table field \".bars\" should be boolean. You passed: " .. type(options.bars) .. ".", 2)
-      end
-
-      rs.bars = options.bars
-  end
-
-  -- Show/hide debug info.
-  if options.debug ~= nil then
-      if type(options.debug) ~= "boolean" then
-        error(".init: table field \".debug\" should be boolean. You passed: " .. type(options.debug) .. ".", 2)
-      end
-
-      rs.debug = options.debug
-  end
-
-  -- Scale mode.
-  if options.mode then
-      if type(options.mode) ~= "number" then
-        error(".init: table field \".mode\" should be number. You passed: " .. type(options.mode) .. ".", 2)
-      end
-
-      -- Check for out of bounds.
-      if options.mode > 3 or options.mode < 1 then
-        error(".init: table field \".mode\" should be 1, 2 or 3. You passed: " .. tostring(options.mode) .. ".", 2)
-      end
-
-      rs.scaleMode  = options.mode
-  end
-
-  -- Red component.
-  -- If user passed .r parameter, check it for being number.
-  if options.r then
-      if type(options.r) ~= "number" then
-        error(".init: table field \".r\" should be number. You passed: " .. type(options.r) .. ".", 2)
-      end
-
-      -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
-      if options.r > 1 or options.r < 0 then
-         error(".init: table field \".r\" should be in-between 0 to 1. You passed: " .. tostring(options.r) .. ".", 2)
-      end
-      
-      rs.r  = options.r
-  end
-
-  -- Green component.
-  if options.g then
-      if type(options.g) ~= "number" then
-        error(".init: table field \".g\" should be number. You passed: " .. type(options.g) .. ".", 2)
-      end
-
-      -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
-      if options.g > 1 or options.g < 0 then
-         error(".init: table field \".g\" should be in-between 0 to 1. You passed: " .. tostring(options.g) .. ".", 2)
-      end
-
-      rs.g  = options.g
-  end
-
-  -- Blue component.
-  if options.b then
-      if type(options.b) ~= "number" then
-        error(".init: table field \".b\" should be number. You passed: " .. type(options.b) .. ".", 2)
-      end
-
-      -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
-      if options.b > 1 or options.b < 0 then
-         error(".init: table field \".b\" should be in-between 0 to 1. You passed: " .. tostring(options.b) .. ".", 2)
-      end
-
-      rs.b  = options.b
-  end
-
-  -- Alpha channel.
-  if options.a then
-      if type(options.a) ~= "number" then
-        error(".init: table field \".a\" should be number. You passed: " .. type(options.a) .. ".", 2)
-      end
-
-      -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
-      if options.a > 1 or options.a < 0 then
-         error(".init: table field \".a\" should be in-between 0 to 1. You passed: " .. tostring(options.a) .. ".", 2)
-      end
-
-      rs.a  = options.a
-  end
-
-  -- Activate hack for pixel perfect scaling.
-  if options.hack ~= nil then
-      if type(options.hack) ~= "boolean" then
-        error(".init: table field \".hack\" should be boolean. You passed: " .. type(options.hack) .. ".", 2)
-      end
-
-      rs.pixelPerfectOffsetsHack  = options.hack
-  end
-
-  -- Update library with new parameters.
-  rs.resize()
-end
-
-rs.getGameZone = function()
-  local gameZone = rs.gameZone
-  return gameZone.x, gameZone.y, gameZone.w, gameZone.h
-end
-
-rs.setGame = function(width, height)
-  -- Virtual size for game that library will scale to.
-
-  -- Sanity check for input arguments.
-  if type(width) ~= "number" or type(height) ~= "number"  then
-      error(".setGame: Expected 2 arguments, that should be numbers. You passed: " .. type(width) .. ", " .. type(height) .. ".", 2)
-  end
-
-  rs.gameWidth = width
-  rs.gameHeight = height
-
-  rs.resize()
-end
-
-rs.getGame = function()
-  return rs.gameWidth, rs.gameHeight
-end
-
-rs.setScaleMode = function(mode)
-  -- Sanity check for input argument.
-    if type(mode) ~= "number" then
-      error(".setScaleMode: Expected number or nil argument. You passed: " .. type(mode) .. ".", 2)
-    else
-      -- Since currently there only 3 modes, anything other then that should raise error.
-      if mode > 3 or mode < 1 then
-        error(".setScaleMode: Expected argument to be 1, 2 or 3. You passed: " .. tostring(mode).. ".", 2)
-      end
-    end
-
-    rs.scaleMode = mode
-    rs.resize()
-end
-rs.switchScaleMode = function(side)
-  -- Default order is +1.
-  side = side or 1
-
-  if type(side) ~= "number" then
-    error(".switchScaleMode: Expected number or nil argument. You passed: " .. type(side) .. ".", 2)
-  else
-    -- Anything other then 1 and -1 and nil will raise error.
-    if side ~= 1 and side ~= -1 then
-      error(".switchScaleMode: Expected argument should be 1, -1 or nil. You passed: " .. tostring(side), 2)
-    end
-  end
-
-  rs.scaleMode = rs.scaleMode + side
-
-  -- Check for limits. It will loop from 1 to 3 and vice-versa.
-  if rs.scaleMode > 3 then rs.scaleMode = 1 end
-  if rs.scaleMode < 1 then rs.scaleMode = 3 end
-
-  -- Since we changed scale mode, we need to re-calculate library data.
-  rs.resize()
-end
-
-rs.setMode = function(width, height, flags)
-  -- Wrapper for love.window.setMode()
-
-  local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
-  if not okay then
-    error(".setMode: Error: " .. errorMessage, 2)
-  end
-
-  -- Since we potentially changed here window size, we need to recalculate all data.
-  rs.resize()
-end
-
-rs.switchPixelHack = function()
-  rs.pixelPerfectOffsetsHack = not rs.pixelPerfectOffsetsHack
-  rs.resize()
-end
-
-rs.switchBars = function()
-  rs.bars = not rs.bars
-end
-
-rs.drawBars = function()
-  -- Function that will draw bars.
-  
-  -- Can we can draw bars?
-  if not rs.bars then
-    return
+rs.configure = function(options)
+  if type(options) ~= "table" then
+    error("configure should be table.", 2)
   end
   
-  -- In Stretch Scaling mode there no bars.
-  if rs.scaleMode == 2 then
-    return
+  if options.game_width then
+    if type(options.game_width) ~= "number" then error("game_width should be number. You passed: " .. type(options.game_width) .. ".", 2) end
+    if options.game_width < 0 then error("game_width should be 0 or more. You passed: " .. tostring(options.game_width) .. ".", 2) end
+    rs.game_width = options.game_width
   end
   
-  -- Get color components, that was before rs.stop() function.
-  local r, g, b, a = love.graphics.getColor()
+  if options.game_height then
+    if type(options.game_height) ~= "number" then error("game_height should be number. You passed: " .. type(options.game_height) .. ".", 2) end
+    if options.game_height < 0 then error("game_height should be 0 or more. You passed: " .. tostring(options.game_height) .. ".", 2) end
+    rs.game_height = options.game_height
+  end
   
-  -- Prepare to draw bars.
+  if options.scale_mode then
+    if type(options.scale_mode) ~= "number" then error("scale_mode should be number.", 2) end
+    if options.scale_mode > 3 or options.scale_mode < 1 then error("scale_mode can be only 1, 2 and 3. You passed: " .. tostring(options.scale_mode) .. ".") end
+    rs.scale_mode = options.scale_mode
+  end
+  
+  rs.resize()
+end
+
+rs.push = function()
+  -- Prepare to scale.
   love.graphics.push()
   
   -- Reset transformation.
   love.graphics.origin()
 
-  -- Set color for bars.
-  love.graphics.setColor(rs.r, rs.g, rs.b, rs.a)
+  -- Set offset, based on size of bars.
+  love.graphics.translate(rs.x_offset, rs.y_offset)
+  
+  -- Scale.
+  love.graphics.scale(rs.scale_width, rs.scale_height)
+end
 
-  -- Draw bars.
-  love.graphics.rectangle("fill", rs.x1, rs.y1, rs.w1, rs.h1) -- top
-  love.graphics.rectangle("fill", rs.x2, rs.y2, rs.w2, rs.h2) -- left
-  love.graphics.rectangle("fill", rs.x3, rs.y3, rs.w3, rs.h3) -- right
-  love.graphics.rectangle("fill", rs.x4, rs.y4, rs.w4, rs.h4) -- bottom
-  
-  -- Return original color that was before rs.stop()
-  love.graphics.setColor(r, g, b, a)
-  
-  -- End bars rendering.
+rs.pop = function()
+  -- Stop scaling.
   love.graphics.pop()
 end
 
-rs.setColor = function(r, g, b, a)
-  -- Set color of "black" bars.
+rs.resize = function()
+  local window_width, window_height = love.graphics.getWidth(), love.graphics.getHeight()
+
+  -- Scale for game virtual size.
+  local scale_width, scale_height = 0, 0
   
-  -- Check if all arguments are on place.
-  if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" or type(a) ~= "number" then
-      error(".setColor: Expected 4 arguments, that should be numbers. You passed: " .. type(r) .. ", " .. type(g) .. ", " .. type(b) .. ", " .. type(a) .. ".", 2)
+  -- Offsets.
+  local x_offset, y_offset = 0, 0
+
+  -- Virtual game size.
+  local game_width, game_height = rs.game_width, rs.game_height
+  
+  -- Scale mode.
+  local scale_mode = rs.scale_mode
+  
+  -- If we in stretch scaling mode.
+  if scale_mode == 2 then
+    -- We only need to update width and height scale.
+    scale_width = window_width / game_width
+    scale_height = window_height / game_height
+  
+  -- Other scaling modes.
+  else
+
+    if scale_mode == 3 then
+    -- If window size is non-even, it will result in non-integer offset values, which would result in pixel bleeding.
+    -- We will ceil window sizes it to avoid that.
+      if (window_width % 2 ~= 0) then
+        window_width = window_width + 1
+      end
+        
+      if (window_height % 2 ~= 0) then
+        window_height = window_height + 1
+      end
+    end
+
+  -- Other scaling methods need to determine scale, based on window and game aspect.
+    local scale = math.min(window_width / game_width, window_height / game_height)
+
+    -- Pixel perfect scaling.
+    if scale_mode == 3 then
+      -- We will floor to nearest int number.
+      -- And we fallback to scale 1, if game size is less then window, because when scale == 0, there nothing to see.
+      scale = math.max(math.floor(scale), 1)
+    end
+
+    -- Update offsets.
+    x_offset, y_offset = (window_width - (scale * game_width)) / 2, (window_height - (scale * game_height)) / 2
+    -- Update scaling values.
+    scale_width, scale_height = scale, scale
   end
   
-    -- Check for out-of-bounds. Starting from love 11, colors become 0 - 1 in float. Before it was 0 - 255.
-    -- Red
-    if r > 1 or r < 0 then
-        error(".setColor: Argument \"r\" should be number in-between 0 - 1. You passed: " .. tostring(r) .. ".", 2)
-    end
-    
-    -- Green
-    if g > 1 or g < 0 then
-        error(".setColor: Argument \"g\" should be number in-between 0 - 1. You passed: " .. tostring(g) .. ".", 2)
-    end
-    
-    -- Blue
-    if b > 1 or b < 0 then
-        error(".setColor: Argument \"b\" should be number in-between 0 - 1. You passed: " .. tostring(b) .. ".", 2)
-    
-  end
+  -- Save values to library --
   
-  -- Alpha
-    if a > 1 or a < 0 then
-        error(".setColor: Argument \"a\" should be number in-between 0 - 1. You passed: " .. tostring(a) .. ".", 2)
-    end
-
-  rs.r = r -- red
-  rs.g = g -- green
-  rs.b = b -- blue
-  rs.a = a -- alpha
+  rs.x_offset, rs.y_offset = x_offset, y_offset
+  
+  rs.scale_width, rs.scale_height = scale_width, scale_height
+  
+  rs.game_zone.x = x_offset
+  rs.game_zone.y = y_offset
+  rs.game_zone.w = window_width - (x_offset* 2)
+  rs.game_zone.h = window_height - (y_offset * 2)
+  
+  rs.resize_callback()
 end
 
-rs.defaultColor = function()
-  -- Reset color for "black" bars to black color.
 
-  rs.r = 0 -- red
-  rs.g = 0 -- green
-  rs.b = 0 -- blue
-  rs.a = 1 -- alpha
-end
 
-rs.getColor = function()
-  -- Get red, green, blue and alpha componets of "black" bars color.
+----------------------------------------------------------------------
+--                        Helper functions                          --
+----------------------------------------------------------------------
 
-  return rs.r, -- red
-         rs.g, -- green
-         rs.b, -- blue
-         rs.a  -- alpha
-end
-
-rs.switchDebug = function()
-  rs.debug = not rs.debug
-end
-
-rs.debugFunc = function(debugX, debugY)
+rs.resize_callback = function()end
+rs.debug_info = function(debugX, debugY)
   -- Function used to render debug info on-screen.
-
-  -- If debug disabled, there no point in wasting time on futher actions.
-  if not rs.debug then return end
 
   -- Set width and height for debug "window".
   local debugWidth = 230
@@ -448,233 +240,95 @@ rs.debugFunc = function(debugX, debugY)
   -- Return font.
   love.graphics.setFont(oldFont)
 end
-
-rs.nearestFilter = function(filter, anisotropy)
-  -- Sanity check for filter argument.
-  if filter == nil then
-    filter = true
-  end
-  
-  if type(filter) ~= "boolean" then
-    error(".nearestFilter: 1 argument should be nil or boolean. You passed: " .. type(filter) .. ".", 2)
-  end
-  
-  -- Translate boolean to string.
-  if filter == true then -- neareset
-    filter = "nearest"
-  elseif filter == false then -- linear
-    filter = "linear"
-  end
-  
-  -- Check anisatropy.
-  anisotropy = anisotropy or select(3, love.graphics.getDefaultFilter())
-  
-  if type(anisotropy) ~= "number" then
-    error(".nearestFilter: 2 argument should be nil or number. You passed: " .. type(anisotropy) .. ".", 2)
-  end
-  
-  -- Just in case, call this function in protected way.
-  local okay, errorMessage = pcall(love.graphics.setDefaultFilter, filter, filter, anisotropy)
-  if not okay then
-    error(".nearestFilter: Error: " .. errorMessage, 2)
-  end
+rs.get_game_zone = function()
+  local game_zone = rs.game_zone
+  return game_zone.x, game_zone.y, game_zone.w, game_zone.h
 end
 
-rs.resize = function(windowWidth, windowHeight)
-  windowWidth = windowWidth or love.graphics.getWidth()
-  windowHeight = windowHeight or love.graphics.getHeight()
-  
-  -- Check if user passed arguments and if they are numbers.
-  if type(windowWidth) ~= "number" then
-    error(".resize: 1 argument should be number or nil. You passed: " .. type(windowWidth) .. ".", 2)
-  end
-  if type(windowHeight) ~= "number" then
-    error(".resize: 2 argument should be number or nil. You passed: " .. type(windowHeight) .. ".", 2)
-  end
-
-  -- Scale for game virtual size.
-  local scaleWidth, scaleHeight = 0, 0
-  
-  -- Offsets.
-  local xOff, yOff = 0, 0
-
-  -- Virtual game size.
-  local gameWidth, gameHeight = rs.gameWidth, rs.gameHeight
-  
-  -- Scale mode.
-  local scaleMode = rs.scaleMode
-  
-  -- If we in stretch scaling mode.
-  if scaleMode == 2 then
-    -- We only need to update width and height scale.
-    scaleWidth = windowWidth / gameWidth
-    scaleHeight = windowHeight / gameHeight
-
-  else
-    -- When you in Pixel Pefrect scaling mode (3), if window size is non-even, it will result in
-    -- non-integer offset values for x and y, which result in pixels bleeding.
-    if rs.pixelPerfectOffsetsHack and rs.scaleMode == 3 then
-      if (windowWidth % 2 ~= 0) then
-        windowWidth = windowWidth + 1
-      end
-        
-      if (windowHeight % 2 ~= 0) then
-        windowHeight = windowHeight + 1
-      end
-    end
-
-  -- Other scaling methods need to determine scale, based on window and game aspect.
-    local scale = math.min(windowWidth / gameWidth,  windowHeight / gameHeight)
-
-    -- Pixel perfect scaling.
-    if scaleMode == 3 then
-      -- We will floor to nearest int number.
-      -- And we fallback to scale 1, if game size is less then window, because when scale == 0, there nothing to see.
-      scale = math.max(math.floor(scale), 1)
-    end
-
-    -- Update offsets.
-    xOff, yOff = (windowWidth - (scale * gameWidth)) / 2, (windowHeight - (scale * gameHeight)) / 2
-    -- Update scaling values.
-    scaleWidth, scaleHeight = scale, scale
-  end
-  
-  -- Save values to library --
-  
-  -- Black bars.
-  rs.x1, rs.y1, rs.w1, rs.h1 = 0, 0, windowWidth, yOff                                   --top
-  rs.x2, rs.y2, rs.w2, rs.h2 = 0, yOff, xOff, windowHeight - (yOff * 2)                  -- left
-  rs.x3, rs.y3, rs.w3, rs.h3 = windowWidth - xOff, yOff, xOff, windowHeight - (yOff * 2) -- right
-  rs.x4, rs.y4, rs.w4, rs.h4 = 0, windowHeight - yOff, windowWidth, yOff                 -- bottom
-  
-  rs.xOff, rs.yOff = xOff, yOff
-  
-  rs.scaleWidth, rs.scaleHeight = scaleWidth, scaleHeight
-  
-  rs.windowWidth, rs.windowHeight = windowWidth, windowHeight
-  
-  rs.gameZone.x = xOff
-  rs.gameZone.y = yOff
-  rs.gameZone.w = windowWidth - (xOff * 2)
-  rs.gameZone.h = windowHeight - (yOff * 2)
-  
-  rs.resizeCallback()
+rs.get_game_size = function()
+  return rs.game_width, rs.game_height
 end
 
-rs.resizeCallback = function() end
-
-rs.start = function()
-  -- Prepare to scale.
-  love.graphics.push()
-  
-  -- Reset transformation.
-  love.graphics.origin()
-
-  -- Set offset, based on size of bars.
-  love.graphics.translate(rs.xOff, rs.yOff)
-  
-  -- Scale.
-  love.graphics.scale(rs.scaleWidth, rs.scaleHeight)
-end
-
-rs.stop = function()
-  -- Stop scaling.
-  love.graphics.pop()
-
-  -- Draw bars.
-  rs.drawBars()
-end
-
-rs.unscaleStart = function()  
-  -- Start unscaling.
-  love.graphics.push()
-  
-  -- Reset transformation and scaling.
-  love.graphics.origin()
-end
-
-rs.unscaleStop = function()
-  love.graphics.pop()
-end
-
-rs.getScale = function()
-  -- Get width and height scale.
-  
-  return rs.scaleWidth, rs.scaleHeight
-end
-
-rs.getWindow = function()
-  return rs.windowWidth, rs.windowHeight
-end
-
-rs.isMouseInside = function()
-  -- If we in Stretch Scaling mode, then there is no bars, so mouse always "inside".
+rs.is_it_inside = function(it_x, it_y)
+  -- If we in Stretch Scaling mode we always "inside".
   if rs.scaleMode == 2 then
     return true
   end
   
-  local mouseX, mouseY = love.mouse.getPosition()
-  local x, y, w, h = rs.getGameZone()
+  local x, y, w, h = rs.game_zone.x, rs.game_zone.y, rs.game_zone.w, rs.game_zone.h
 
-  -- Check if cursor inside game zone.
-  if mouseX    >= x                 and -- left
-     mouseY    >= y                 and -- top
-     mouseX    <= x + w             and -- right
-     mouseY    <= y + h            then -- bottom
-      -- Cursor inside game zone.
+  -- Check if it inside game zone.
+  if it_x    >= x                 and -- left
+     it_y    >= y                 and -- top
+     it_x    <= x + w             and -- right
+     it_y    <= y + h            then -- bottom
+      -- It inside game zone.
      return true
   end
 
-  -- Cursor outside of game zone.
+  -- It outside of game zone.
   return false
 end
 
-rs.toGame = function(x, y)
-  if type(x) ~= "number" or type(y) ~= "number" then
-    error(".toGame: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".", 2)
-  end
-
-  return (x - rs.xOff) / rs.scaleWidth, (y - rs.yOff) / rs.scaleHeight
+rs.get_both_scales = function()
+  -- Get both width and height scale.
+  
+  return rs.scaleWidth, rs.scaleHeight
 end
 
-rs.toGameX = function(x)
-  if type(x) ~= "number" then
-    error(".toGameX: Expected argument, that should be number. You passed: " .. type(x) .. ".", 2)
-  end
+rs.to_game = function(x, y)
+  -- User passed only X.
+  if type(x) == "number" and type(y) == "nil" then
+    return (x - rs.x_offset) / rs.scale_width
+  
+  -- User passed only Y.
+  elseif type(x) == "nil" and type(y) == "number" then
+    return (y - rs.y_offset) / rs.scale_height
+  
+  -- User passed both X and Y.
+  elseif type(x) == "number" and type(y) == "number" then
+    return (x - rs.x_offset) / rs.scale_width, (y - rs.y_offset) / rs.scale_height
+  
+  -- User passed wrong arguments.
+  else
+    error(".to_game: At least 1 argument should be number. You passed: " .. type(x) .. " and " .. type(y), 2)
+  end 
 
-  return (x - rs.xOff) / rs.scaleWidth
 end
 
-rs.toGameY = function(y) 
-  if type(y) ~= "number" then
-    error(".toGameY: Expected argument, that should be number. You passed: " .. type(y) .. ".", 2)
+rs.to_window = function(x, y)
+  -- User passed only X.
+  if type(x) == "number" and type(y) == "nil" then
+    return (x * rs.scale_width) + rs.x_offset
+  
+  -- User passed only Y.
+  elseif type(x) == "nil" and type(y) == "number" then
+    return (y * rs.scale_height) + rs.y_offset
+  
+  -- User passed both X and Y.
+  elseif type(x) == "number" and type(y) == "number" then
+    return (x * rs.scale_width) + rs.x_offset, (y * rs.scale_height) + rs.y_offset
+
+  -- User passed wrong arguments.
+  else
+    error(".to_window: At least 1 argument should be number. You passed: " .. type(x) .. " and " .. type(y), 2)
   end
 
-  return (y - rs.yOff) / rs.scaleHeight
 end
 
-rs.toScreen = function(x, y)
-  if type(x) ~= "number" or type(y) ~= "number" then
-    error(".toScreen: Expected 2 arguments, that should be numbers. You passed: " .. type(x) .. ", " .. type(y) .. ".", 2)
-  end
+----------------------------------------------------------------------
+--                        love wrappers                             --
+----------------------------------------------------------------------
 
-  return (x * rs.scaleWidth) + rs.xOff, (y * rs.scaleHeight) + rs.yOff
-end
+rs.setMode = function(width, height, flags)
+  -- Wrapper for love.window.setMode()
 
-rs.toScreenX = function(x)
-  if type(x) ~= "number" then
-    error(".toScreenX: Expected argument, that should be number. You passed: " .. type(x) .. ".", 2)
-  end
-
-  return (x * rs.scaleWidth) + rs.xOff
-end
-
-rs.toScreenY = function(y)
-  if type(y) ~= "number" then
-    error(".toScreenY: Expected argument, that should be number. You passed: " .. type(y) .. ".", 2)
+  local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
+  if not okay then
+    error(".setMode: Error: " .. errorMessage, 2)
   end
   
-  return (y * rs.scaleHeight) + rs.yOff
+  rs.resize()
 end
 
 return rs

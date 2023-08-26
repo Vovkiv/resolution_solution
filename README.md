@@ -4,9 +4,11 @@ Yet another scaling library.
 Resolution Solution was inspired by:
 * TLfres (https://love2d.org/wiki/TLfres)
 * PUSH (https://github.com/Ulydev/push)
+* SimpleScale (https://github.com/tomlum/simpleScale)
+
+Other similar libraries:
+* Center (https://github.com/S-Walrus/center)
 * maid64 (https://github.com/adekto/maid64)
-Other similar libraries that I didn't used, but you still might found them more suitable for your game then Resolution Solution:
-* https://github.com/S-Walrus/center 
 
 # Selling point of this library:
 * Library have 3 scale modes and you can switch between at any time:

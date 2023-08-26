@@ -29,25 +29,25 @@ Other similar libraries:
 https://youtu.be/cslfWOpetrc
 
 # Basic setup:
-1 Drop library into your main.lua:
+1. Drop library into your main.lua:
 
 ``` local rs = require("resolution_solution") ```
 
-2 Configure it:
+2. Configure it:
 
 ``` rs.conf({game_width = 640, game_height = 480, scale_mode = 3}) ```
 
-Make window resizable:
+3. Make window resizable:
 
 ``` rs.setMode(rs.game_width, rs.game_height, {resizable = true}) ```
 
-3 Update library:
+4. Update it:
  ```
 love.resize = function(w, h)
    rs.resize()
 end
 ``` 
-4 Draw something! (In this example we used scissors, but there another ways to achieve this. Read manual for more info.)
+5. Draw something! (In this example we used scissors, but there another ways to achieve this. Read manual for more info.)
 ```
 love.draw = function()
   rs.push()
@@ -62,6 +62,9 @@ love.draw = function()
 end
 ```
 You can also check this demo for more examples of library usage: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
+
+# Manual
+[link to manual .PDF file]
 
 # Games made using this library
 https://github.com/togfoxy/Autarky2

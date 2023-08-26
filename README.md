@@ -1,4 +1,4 @@
-# Resolution Solution
+# Resolution Solution - v3000 testing branch
 Yet another scaling library.
 
 "Resolution Solution" was inspired by: TLfres (https://love2d.org/wiki/TLfres), PUSH (https://github.com/Ulydev/push), maid64 (https://github.com/adekto/maid64) libraries.

@@ -177,7 +177,7 @@ end
 --                        Helper functions                          --
 ----------------------------------------------------------------------
 
-rs.resize_callback = function()end
+rs.resize_callback = function() end
 rs.debug_info = function(debugX, debugY)
   -- Function used to render debug info on-screen.
 

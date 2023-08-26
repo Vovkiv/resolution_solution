@@ -25,7 +25,7 @@ Yet another scaling library.
 https://youtu.be/cslfWOpetrc
 
 # Basic setup:
-1 drop library into your main.lua:
+1 Drop library into your main.lua:
 
 ``` local rs = require("resolution_solution") ```
 

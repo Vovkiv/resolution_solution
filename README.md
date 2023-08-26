@@ -6,10 +6,6 @@ Yet another scaling library.
 * PUSH (https://github.com/Ulydev/push)
 * maid64 (https://github.com/adekto/maid64)
 
-# Announces
-I will post announces when new update will be dropped here.
-https://love2d.org/forums/viewtopic.php?t=92494
-
 # Selling point of this library:
 * Library have 3 scale modes and you can switch between at any time:
 
@@ -62,6 +58,9 @@ love.draw = function()
 end
 ```
 You can also check this demo for more examples of library usage: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
+
+# Announces
+I will post announces when new update will be dropped here: https://love2d.org/forums/viewtopic.php?t=92494
 
 # Contacts
 If you have any questions about this library, have ideas, etc, you can contact me via:

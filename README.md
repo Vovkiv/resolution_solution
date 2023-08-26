@@ -82,7 +82,7 @@ I will post announces when new update will be dropped here: https://love2d.org/f
 # Contacts
 If you have any questions about this library, have ideas, etc, you can contact me via:
 1. You can use issues for this repo
-2. Contact me on love forums where I very active: https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762
+2. love forums where I very active: https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762
 3. matrix: @vovkiv:matrix.org
 4. Discord: volkovich
 5. If you that old, you can use email: volkovissocool@gmail.com

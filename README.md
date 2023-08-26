@@ -63,6 +63,15 @@ end
 ```
 You can also check this demo for more examples of library usage: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
 
+# Games made using this library
+https://github.com/togfoxy/Autarky2
+https://github.com/togfoxy/SpaceFleetBattles
+https://github.com/togfoxy/FormulaSpeed
+
+https://hmmmgames.itch.io/dragon
+https://hmmmgames.itch.io/rem-psyche
+https://hmmmgames.itch.io/dust-bb
+
 # Announces
 I will post announces when new update will be dropped here: https://love2d.org/forums/viewtopic.php?t=92494
 

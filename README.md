@@ -61,5 +61,12 @@ love.draw = function()
   rs.pop()
 end
 ```
-
 You can also check this demo for more examples of library usage: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
+
+# Contacts
+If you have any questions about this library, have ideas, etc, you can contact me via:
+1. You can use issues for this repo
+2. Contact me on love forums where I very active: https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762
+3. matrix: @vovkiv:matrix.org
+4. Discord: volkovich
+5. If you that old, you can use email: volkovissocool@gmail.com

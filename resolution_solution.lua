@@ -60,7 +60,7 @@ rs.game_zone = {
 --                        Essential functions                       --
 ----------------------------------------------------------------------
 
-rs.configure = function(options)
+rs.conf = function(options)
   if type(options) ~= "table" then
     error("configure should be table.", 2)
   end
@@ -93,7 +93,7 @@ rs.push = function()
   -- Reset transformation.
   love.graphics.origin()
 
-  -- Set offset, based on size of bars.
+  -- Set offset.
   love.graphics.translate(rs.x_offset, rs.y_offset)
   
   -- Scale.

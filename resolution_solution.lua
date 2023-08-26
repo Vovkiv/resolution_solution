@@ -165,7 +165,7 @@ rs.resize = function()
   
   rs.game_zone.x = x_offset
   rs.game_zone.y = y_offset
-  rs.game_zone.w = window_width - (x_offset* 2)
+  rs.game_zone.w = window_width - (x_offset * 2)
   rs.game_zone.h = window_height - (y_offset * 2)
   
   rs.resize_callback()
@@ -182,8 +182,8 @@ rs.debug_info = function(debugX, debugY)
   -- Function used to render debug info on-screen.
 
   -- Set width and height for debug "window".
-  local debugWidth = 230
-  local debugHeight = 230
+  local debugWidth = 215
+  local debugHeight = 120
 
   -- Default position is top-left corner of window.
   debugX = debugX or 0
@@ -217,21 +217,13 @@ rs.debug_info = function(debugX, debugY)
   -- Print data.
   love.graphics.printf(
     rs._NAME .. " v." .. tostring(rs._VERSION) .. "\n" ..
-    "gameWidth: " .. tostring(rs.gameWidth) .. "\n" ..
-    "gameHeight: " .. tostring(rs.gameHeight) .. "\n" ..
-    "scaleWidth: " .. tostring(rs.scaleWidth) .. "\n" ..
-    "scaleHeight: " .. tostring(rs.scaleHeight) .. "\n" ..
-    "windowWidth: " .. tostring(rs.windowWidth) .. "\n" ..
-    "windowHeight: " .. tostring(rs.windowHeight) .. "\n" ..
-    "scaleMode: " .. tostring(rs.scaleMode) .. "\n" ..
-    "bars: " .. tostring(rs.bars) .. "\n" ..
-    "debug: " .. tostring(rs.debug) .. "\n" ..
-    "xOff: " .. tostring(rs.xOff) .. "\n" ..
-    "yOff: " .. tostring(rs.yOff) .. "\n" ..
-    "pixelPerfectOffsetsHack: " .. tostring(rs.pixelPerfectOffsetsHack) .. "\n" ..
-    "filter: " .. "min: " .. tostring(select(1, love.graphics.getDefaultFilter())) .. ", mag: " .. tostring(select(2, love.graphics.getDefaultFilter())) .. "\n" ..
-    "anisotropy: " .. tostring(select(3, love.graphics.getDefaultFilter())) .. "\n" ..
-    "isMouseInside: " .. tostring(rs.isMouseInside()),
+    "game_width: " .. tostring(rs.game_width) .. "\n" ..
+    "game_height: " .. tostring(rs.game_height) .. "\n" ..
+    "scale_width: " .. tostring(rs.scale_width) .. "\n" ..
+    "scale_height: " .. tostring(rs.scale_height) .. "\n" ..
+    "scale_mode: " .. tostring(rs.scale_mode) .. "\n" ..
+    "x_offset: " .. tostring(rs.x_offset) .. "\n" ..
+    "y_offset: " .. tostring(rs.y_offset) .. "\n",
     debugX, debugY, debugWidth)
 
   -- Return colors.
@@ -250,6 +242,15 @@ rs.get_game_size = function()
 end
 
 rs.is_it_inside = function(it_x, it_y)
+  -- Input sanitizing.
+  if type(it_x) ~= "number" then
+    error(".is_it_inside: Argument #1 should be number. You passed: " .. type(it_x) .. ".", 2)
+  end
+  
+  if type(it_y) ~= "number" then
+    error(".is_it_inside: Argument #2 should be number. You passed: " .. type(it_y) .. ".", 2)
+  end
+  
   -- If we in Stretch Scaling mode we always "inside".
   if rs.scaleMode == 2 then
     return true
@@ -273,7 +274,7 @@ end
 rs.get_both_scales = function()
   -- Get both width and height scale.
   
-  return rs.scaleWidth, rs.scaleHeight
+  return rs.scale_width, rs.scale_height
 end
 
 rs.to_game = function(x, y)

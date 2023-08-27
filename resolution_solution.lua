@@ -129,18 +129,6 @@ rs.resize = function()
   -- Other scaling modes.
   else
 
-    if scale_mode == 3 then
-    -- If window size is non-even, it will result in non-integer offset values, which would result in pixel bleeding.
-    -- We will ceil window sizes it to avoid that.
-      if (window_width % 2 ~= 0) then
-        window_width = window_width + 1
-      end
-        
-      if (window_height % 2 ~= 0) then
-        window_height = window_height + 1
-      end
-    end
-
   -- Other scaling methods need to determine scale, based on window and game aspect.
     local scale = math.min(window_width / game_width, window_height / game_height)
 
@@ -327,6 +315,17 @@ rs.setMode = function(width, height, flags)
   local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
   if not okay then
     error(".setMode: Error: " .. errorMessage, 2)
+  end
+  
+  rs.resize()
+end
+
+rs.updateMode = function(width, height, flags)
+  -- Wrapper for love.window.updateMode()
+  
+  local okay, errorMessage = pcall(love.window.updateMode, width, height, flags)
+  if not okay then
+    error(".updateMode: Error: " .. errorMessage, 2)
   end
   
   rs.resize()

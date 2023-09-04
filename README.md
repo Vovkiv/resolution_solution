@@ -59,7 +59,9 @@ love.draw = function()
   rs.pop()
 end
 ```
-You can also check this demo for more examples of library usage: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
+You can also check demo: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
+
+Or examples: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite/examples (replace links later)
 
 # Manual
 [link to manual .PDF file]

@@ -1,4 +1,6 @@
 # Resolution Solution - v3000 is in WIP. Stay tuned.
+(Check v3000 branch for incoming update: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite)
+
 Yet another scaling library.
 
 "Resolution Solution" was inspired by: TLfres (https://love2d.org/wiki/TLfres), PUSH (https://github.com/Ulydev/push), maid64 (https://github.com/adekto/maid64) libraries.

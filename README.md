@@ -1,5 +1,5 @@
 # Resolution Solution - v3000 is in WIP. Stay tuned.
-(Check v3000 branch for incoming update: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite)
+(Check WIP v3000 branch for incoming update: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite)
 
 Yet another scaling library.
 

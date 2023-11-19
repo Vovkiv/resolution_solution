@@ -19,7 +19,7 @@ Other similar libraries:
 [![](https://markdown-videos-api.jorgenkh.no/youtube/cslfWOpetrc)](https://youtu.be/cslfWOpetrc)
 
 # Basic setup:
-1. Drop library into your main.lua:
+1. Drop library into your `main.lua`:
 
 ```lua
 local rs = require("resolution_solution")
@@ -43,7 +43,9 @@ love.resize = function(w, h)
    rs.resize()
 end
 ``` 
-5. Draw something! (In this example we used scissors, but there another ways to achieve this. Read manual for more info.)
+5. Draw something:
+
+(In this example we used scissors, but there another ways to achieve this. Read manual or check examples for more info.)
 ```lua
 love.draw = function()
   rs.push()
@@ -57,7 +59,6 @@ love.draw = function()
   rs.pop()
 end
 ```
-You can also check  or [examples folder](examples).
 
 # Manual, examples, demo
 * [.pdf manual](resolution_solution_documentation.pdf).

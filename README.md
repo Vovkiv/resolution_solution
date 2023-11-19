@@ -64,7 +64,7 @@ You can also check demo: https://github.com/Vovkiv/resolution_solution/blob/main
 Or examples: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite/examples (replace links later)
 
 # Manual
-[Can be found here](#resolution_solution_documentation.pdf)
+[Can be found here](resolution_solution_documentation.pdf)
 
 # Games made using this library
 https://github.com/togfoxy/Autarky2

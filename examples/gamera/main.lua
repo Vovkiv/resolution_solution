@@ -129,5 +129,9 @@ love.draw = function()
     love.graphics.print("Use WASD to move camera around.", 0, 40)
     love.graphics.print("Also try to resize window.", 0, 60)
     love.graphics.print("Press F1, F2, F3 to change scale mode.", 0, 80)
+    -- Stop scaling.
   rs.pop()
+  
+  -- Draw rectangle to see game zone.
+  love.graphics.rectangle("line", rs.get_game_zone())
 end

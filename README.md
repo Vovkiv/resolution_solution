@@ -75,8 +75,8 @@ end
 * Library doesn't force you to use any specific way to scale your content, unlike some libraries. You can choose canvases, scissor, draw rectangles on top of game, shaders... whatever you want!
 * Library written according to [kikito's guide](https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/), which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: `rs.game_width`, `rs.scale_mode`, `rs.game_zone.x`, etc.
 * Comes with .PDF manual, that includes some illustrations and examples. Includes "Tips and Tricks" chapter where you could found interesting code snippets for you game related to this scaling library (more snippets will come out later). Sadly, most libraries that I used as inspiration doesn't comes with manuals, or at least good ones.
-* Written with shake_case.
-* Licensed under "Unlicense" license. Do whatever you want with it.
+* Written with `shake_case`.
+* Licensed under `Unlicense license`. Do whatever you want with it.
 
 # Games made using this library
 By togfoxy:

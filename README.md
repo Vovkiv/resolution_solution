@@ -1,4 +1,6 @@
+
 # Resolution Solution
+
 Yet another scaling library.
 
 ---

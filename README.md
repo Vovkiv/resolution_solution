@@ -1,7 +1,7 @@
 
 # Resolution Solution
 
-Yet another scaling library.
+Yet another scaling library. Currently in maintenance-only mode.
 
 ---
 

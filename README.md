@@ -1,14 +1,14 @@
-# Resolution Solution - v3000 testing branch
+# Resolution Solution
 Yet another scaling library.
 
 Resolution Solution was inspired by:
-* TLfres - https://love2d.org/wiki/TLfres
-* PUSH - https://github.com/Ulydev/push
-* SimpleScale - https://github.com/tomlum/simpleScale
+* [TLfres](https://love2d.org/wiki/TLfres)
+* [PUSH](https://github.com/Ulydev/push)
+* [SimpleScale](https://github.com/tomlum/simpleScale)
 
 Other similar libraries:
-* Center - https://github.com/S-Walrus/center
-* maid64 - https://github.com/adekto/maid64
+* [Center](https://github.com/S-Walrus/center)
+* [maid64](https://github.com/adekto/maid64)
 
 # Selling points of this library:
 * Library have 3 scale modes and you can switch between at any time:
@@ -20,11 +20,10 @@ Other similar libraries:
 * Library written according to kikito's guide: https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/, which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: rs.game_width, rs.scale_mode, rs.game_zone.x, etc.
 * Comes with .PDF manual, that includes some illustrations and examples. Includes "Tips and Tricks" chapter where you could found interesting code snippets for you game related to this scaling library (more snippets will come out later). Sadly, most libraries that I used as inspiration doesn't comes with manuals, or at least good ones.
 * Written with shake_case.
-* Actively miantained (kind of, especially compared to other scaling libraries).
 * Licensed under "Unlicense" license. Do whatever you want with it.
 
 # Video demonstration:
-https://youtu.be/cslfWOpetrc
+[Youtube](https://youtu.be/cslfWOpetrc)
 
 # Basic setup:
 1. Drop library into your main.lua:
@@ -67,21 +66,23 @@ Or examples: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite/ex
 [Can be found here](resolution_solution_documentation.pdf)
 
 # Games made using this library
-https://github.com/togfoxy/Autarky2
-https://github.com/togfoxy/SpaceFleetBattles
-https://github.com/togfoxy/FormulaSpeed
+By togfoxy:
+* [Autarky2](https://github.com/togfoxy/Autarky2)
+* [SpaceFleetBattles](https://github.com/togfoxy/SpaceFleetBattles)
+* [FormulaSpeed](https://github.com/togfoxy/FormulaSpeed)
+* [Silent strike](https://codeberg.org/togfox/SilentStrike)
 
-https://hmmmgames.itch.io/dragon
-https://hmmmgames.itch.io/rem-psyche
-https://hmmmgames.itch.io/dust-bb
+By [Gunroar](https://hmmmgames.itch.io/):
+* [YOU ARE DRAGON](https://hmmmgames.itch.io/dragon)
+* [Rem Psycho](https://hmmmgames.itch.io/rem-psyche)
+* [Dust: Battle Beneath](https://hmmmgames.itch.io/dust-bb)
 
 # Announces
-I will post announces when new update will be dropped here: https://love2d.org/forums/viewtopic.php?t=92494
+I will post announces when new update will be dropped [here](https://love2d.org/forums/viewtopic.php?t=92494).
 
 # Contacts
 If you have any questions about this library, have ideas, etc, you can contact me via:
-1. You can use issues for this repo
-2. love forums where I very active: https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762
+1. You can use issues for this repo.
+2. Love forum: https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762
 3. matrix: @vovkiv:matrix.org
-4. Discord: volkovich
-5. If you that old, you can use email: volkovissocool@gmail.com
+4. Email: volkovissocool@gmail.com

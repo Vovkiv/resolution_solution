@@ -1,4 +1,7 @@
 -- This is basic setup for Resolution Solution using love's canvases.
+-- This method will require more setup + you also need to know how to use
+-- love's canvases, but in return, this method more compatible with
+-- some libraries, such as cameras.
 -- https://github.com/Vovkiv/resolution_solution
 
 -- Load example image.
@@ -42,6 +45,7 @@ love.keypressed = function(key)
     rs.conf({scale_mode = 3})
   end
 end
+
 -- Draw stuff.
 love.draw = function()
   -- Setup canvas.
@@ -55,7 +59,6 @@ love.draw = function()
   love.graphics.print("Try to resize window!", 0, 0)
   love.graphics.print("Press F1, F2, F3 to change scale mode.", 0, 20)
   
-  
   -- Once we done with drawing, lets close canvas.
   love.graphics.setCanvas()
   
@@ -67,6 +70,4 @@ love.draw = function()
   rs.pop()
   
   -- Everything outside of rs.push and rs.pop will be unscaled.
-  
-
 end

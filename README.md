@@ -68,12 +68,12 @@ end
 
 # Selling points of this library:
 * Library have 3 scale modes and you can switch between at any time:
-  1. Aspect Scaling mode - scaling with preverved aspect.
+  1. Aspect Scaling mode - scaling with preserved aspect.
   2. Stretching - stretch game to fill entire window.
   3. Pixel Perfect - will scale, using only integer scale factors and adds black bars if it can't. Must-have for pixel-art.
 
 * Library doesn't force you to use any specific way to scale your content, unlike some libraries. You can choose canvases, scissor, draw rectangles on top of game, shaders... whatever you want!
-* Library written according to kikito's guide: https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/, which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: rs.game_width, rs.scale_mode, rs.game_zone.x, etc.
+* Library written according to [kikito's guide](https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/), which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: `rs.game_width`, `rs.scale_mode`, `rs.game_zone.x`, etc.
 * Comes with .PDF manual, that includes some illustrations and examples. Includes "Tips and Tricks" chapter where you could found interesting code snippets for you game related to this scaling library (more snippets will come out later). Sadly, most libraries that I used as inspiration doesn't comes with manuals, or at least good ones.
 * Written with shake_case.
 * Licensed under "Unlicense" license. Do whatever you want with it.

@@ -1,12 +1,16 @@
 # Resolution Solution
 Yet another scaling library.
 
+---
+
 Resolution Solution was inspired by:
+
 * [TLfres](https://love2d.org/wiki/TLfres)
 * [PUSH](https://github.com/Ulydev/push)
 * [SimpleScale](https://github.com/tomlum/simpleScale)
 
 Other similar libraries:
+
 * [Center](https://github.com/S-Walrus/center)
 * [maid64](https://github.com/adekto/maid64)
 
@@ -23,29 +27,36 @@ Other similar libraries:
 * Licensed under "Unlicense" license. Do whatever you want with it.
 
 # Video demonstration:
-[Youtube](https://youtu.be/cslfWOpetrc)
+
+[![](https://markdown-videos-api.jorgenkh.no/youtube/cslfWOpetrc)](https://youtu.be/cslfWOpetrc)
 
 # Basic setup:
 1. Drop library into your main.lua:
 
-``` local rs = require("resolution_solution") ```
+```lua
+local rs = require("resolution_solution")
+```
 
 2. Configure it:
 
-``` rs.conf({game_width = 640, game_height = 480, scale_mode = 3}) ```
+```lua
+rs.conf({game_width = 640, game_height = 480, scale_mode = 3})
+```
 
 3. Make window resizable:
 
-``` rs.setMode(rs.game_width, rs.game_height, {resizable = true}) ```
+```lua
+rs.setMode(rs.game_width, rs.game_height, {resizable = true})
+```
 
 4. Update it:
- ```
+ ```lua
 love.resize = function(w, h)
    rs.resize()
 end
 ``` 
 5. Draw something! (In this example we used scissors, but there another ways to achieve this. Read manual for more info.)
-```
+```lua
 love.draw = function()
   rs.push()
     local old_x, old_y, old_w, old_h = love.graphics.getScissor()
@@ -58,21 +69,24 @@ love.draw = function()
   rs.pop()
 end
 ```
-You can also check demo: https://github.com/Vovkiv/resolution_solution/blob/main/demo.love
+You can also check  or [examples folder](examples).
 
-Or examples: https://github.com/Vovkiv/resolution_solution/tree/v3000_rewrite/examples (replace links later)
-
-# Manual
-[Can be found here](resolution_solution_documentation.pdf)
+# Manual, examples, demo
+* [.pdf manual](resolution_solution_documentation.pdf).
+* [.odt manual](resolution_solution_documentation.odt).
+* [.love demo example that you can run](demo.love).
+* [examples folder](examples).
 
 # Games made using this library
 By togfoxy:
+
 * [Autarky2](https://github.com/togfoxy/Autarky2)
 * [SpaceFleetBattles](https://github.com/togfoxy/SpaceFleetBattles)
 * [FormulaSpeed](https://github.com/togfoxy/FormulaSpeed)
 * [Silent strike](https://codeberg.org/togfox/SilentStrike)
 
 By [Gunroar](https://hmmmgames.itch.io/):
+
 * [YOU ARE DRAGON](https://hmmmgames.itch.io/dragon)
 * [Rem Psycho](https://hmmmgames.itch.io/rem-psyche)
 * [Dust: Battle Beneath](https://hmmmgames.itch.io/dust-bb)
@@ -82,7 +96,8 @@ I will post announces when new update will be dropped [here](https://love2d.org/
 
 # Contacts
 If you have any questions about this library, have ideas, etc, you can contact me via:
-1. You can use issues for this repo.
-2. Love forum: https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762
-3. matrix: @vovkiv:matrix.org
-4. Email: volkovissocool@gmail.com
+
+1. [You can create new issue](https://github.com/Vovkiv/resolution_solution/issues/new)
+2. [love forum](https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762)
+3. [matrix](https://matrix.to/#/@vovkiv:matrix.org)
+4. Email - volkovissocool@gmail.com

@@ -38,9 +38,9 @@ For more information, please refer to <https://unlicense.org>
 --                        Library variables                         --
 ----------------------------------------------------------------------
 
--- 1 Aspect Ascaling
+-- 1 Aspect Scaling
 -- 2 Stretched Scaling
--- 3 Pixel Perfect scaling
+-- 3 Pixel Perfect Scaling
 rs.scale_mode = 1
 
 rs.scale_width, rs.scale_height = 0, 0
@@ -66,20 +66,38 @@ rs.conf = function(options)
   end
   
   if options.game_width then
-    if type(options.game_width) ~= "number" then error("game_width should be number. You passed: " .. type(options.game_width) .. ".", 2) end
-    if options.game_width < 0 then error("game_width should be 0 or more. You passed: " .. tostring(options.game_width) .. ".", 2) end
+    if type(options.game_width) ~= "number" then
+      error("game_width should be number. You passed: " .. type(options.game_width) .. ".", 2)
+    end
+    
+    if options.game_width < 0 then
+      error("game_width should be 0 or more. You passed: " .. tostring(options.game_width) .. ".", 2)
+    end
+    
     rs.game_width = options.game_width
   end
   
   if options.game_height then
-    if type(options.game_height) ~= "number" then error("game_height should be number. You passed: " .. type(options.game_height) .. ".", 2) end
-    if options.game_height < 0 then error("game_height should be 0 or more. You passed: " .. tostring(options.game_height) .. ".", 2) end
+    if type(options.game_height) ~= "number" then
+      error("game_height should be number. You passed: " .. type(options.game_height) .. ".", 2)
+    end
+    
+    if options.game_height < 0 then
+      error("game_height should be 0 or more. You passed: " .. tostring(options.game_height) .. ".", 2)
+    end
+    
     rs.game_height = options.game_height
   end
   
   if options.scale_mode then
-    if type(options.scale_mode) ~= "number" then error("scale_mode should be number.", 2) end
-    if options.scale_mode > 3 or options.scale_mode < 1 then error("scale_mode can be only 1, 2 and 3. You passed: " .. tostring(options.scale_mode) .. ".") end
+    if type(options.scale_mode) ~= "number" then
+      error("scale_mode should be number.", 2)
+    end
+    
+    if options.scale_mode > 3 or options.scale_mode < 1 then
+      error("scale_mode can be only 1, 2 and 3. You passed: " .. tostring(options.scale_mode) .. ".")
+    end
+    
     rs.scale_mode = options.scale_mode
   end
   
@@ -166,6 +184,7 @@ end
 ----------------------------------------------------------------------
 
 rs.resize_callback = function() end
+
 rs.debug_info = function(debugX, debugY)
   -- Function used to render debug info on-screen.
 
@@ -186,10 +205,10 @@ rs.debug_info = function(debugX, debugY)
     error(".debugFunc: 2nd argument should be number or nil. You passed: " .. type(debugY) .. ".", 2)
   end
 
-  -- Save color that was before debug function.
+  -- Save color that was used before debug function.
   local r, g, b, a = love.graphics.getColor()
 
-  -- Save font that was before debug function.
+  -- Save font that was used before debug function.
   local oldFont = love.graphics.getFont()
 
   -- Draw background rectangle for text.
@@ -198,8 +217,10 @@ rs.debug_info = function(debugX, debugY)
   -- Place debug info on screen according to user input.
   love.graphics.rectangle("fill", debugX, debugY, debugWidth, debugHeight)
 
-  -- Set font and color.
+  -- Set color.
   love.graphics.setColor(1, 1, 1, 1)
+
+  -- Set font.
   love.graphics.setFont(love.graphics.newFont(12))
 
   -- Print data.
@@ -214,10 +235,10 @@ rs.debug_info = function(debugX, debugY)
     "y_offset: " .. tostring(rs.y_offset) .. "\n",
     debugX, debugY, debugWidth)
 
-  -- Return colors.
+  -- Return previous color.
   love.graphics.setColor(r, g, b, a)
   
-  -- Return font.
+  -- Return previous font.
   love.graphics.setFont(oldFont)
 end
 rs.get_game_zone = function()

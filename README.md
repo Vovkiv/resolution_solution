@@ -24,7 +24,7 @@ Other similar scaling libraries:
 [![](https://markdown-videos-api.jorgenkh.no/youtube/cslfWOpetrc)](https://youtu.be/cslfWOpetrc)
 
 # Basic setup
-1. Drop library into your `main.lua`:
+1. Require library:
 
 ```lua
 local rs = require("resolution_solution")

@@ -15,6 +15,9 @@ Other similar libraries:
 
 * [Center](https://github.com/S-Walrus/center)
 * [maid64](https://github.com/adekto/maid64)
+* [love2d-pixelscale](https://github.com/DimitriBarronmore/love2d-pixelscale)
+* [CScreen](https://github.com/CodeNMore/CScreen)
+* [terebi](https://github.com/oniietzschan/terebi)
 
 # Video demonstration:
 

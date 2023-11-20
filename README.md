@@ -50,7 +50,7 @@ end
 ``` 
 5. Draw something:
 
-(In this example we used scissors, but there another ways to achieve this. Read [manual](resolution_solution_documentation.pdf) or check [examples](examples) for more info.)
+(In this example we used scissors, but there [another way](examples/basic_setup_with_canvas) to achieve this. Read [manual](resolution_solution_documentation.pdf) or check [examples](examples) for more info.)
 ```lua
 love.draw = function()
   rs.push()
@@ -77,7 +77,7 @@ end
   2. Stretching - stretch game to fill entire window.
   3. Pixel Perfect - will scale, using only integer scale factors and adds black bars if it can't. Must-have for pixel-art.
 
-* Library doesn't force you to use any specific way to scale your content, unlike some libraries. You can choose canvases, scissor, draw rectangles on top of game, shaders, etc.
+* Library doesn't force you to use any specific way to scale your content, unlike some libraries. You can choose canvas, scissors, draw rectangles on top of game, shader, etc.
 * Library written with [kikito's guide](https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/) in mind, which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: `rs.game_width`, `rs.scale_mode`, `rs.game_zone.x`, etc.
 * Library has [.pdf manual](resolution_solution_documentation.pdf), that includes some illustrations, examples, explanations, tips and tricks.
 * Written with `snake_case`.

@@ -177,8 +177,6 @@ rs.resize = function()
   rs.resize_callback()
 end
 
-
-
 ----------------------------------------------------------------------
 --                        Helper functions                          --
 ----------------------------------------------------------------------
@@ -241,6 +239,7 @@ rs.debug_info = function(debugX, debugY)
   -- Return previous font.
   love.graphics.setFont(oldFont)
 end
+
 rs.get_game_zone = function()
   local game_zone = rs.game_zone
   return game_zone.x, game_zone.y, game_zone.w, game_zone.h
@@ -282,7 +281,6 @@ end
 
 rs.get_both_scales = function()
   -- Get both width and height scale.
-  
   return rs.scale_width, rs.scale_height
 end
 
@@ -290,20 +288,19 @@ rs.to_game = function(x, y)
   -- User passed only X.
   if type(x) == "number" and type(y) == "nil" then
     return (x - rs.x_offset) / rs.scale_width
-  
+
   -- User passed only Y.
   elseif type(x) == "nil" and type(y) == "number" then
     return (y - rs.y_offset) / rs.scale_height
-  
+
   -- User passed both X and Y.
   elseif type(x) == "number" and type(y) == "number" then
     return (x - rs.x_offset) / rs.scale_width, (y - rs.y_offset) / rs.scale_height
-  
+
   -- User passed wrong arguments.
   else
     error(".to_game: At least 1 argument should be number. You passed: " .. type(x) .. " and " .. type(y), 2)
-  end 
-
+  end
 end
 
 rs.to_window = function(x, y)
@@ -323,7 +320,6 @@ rs.to_window = function(x, y)
   else
     error(".to_window: At least 1 argument should be number. You passed: " .. type(x) .. " and " .. type(y), 2)
   end
-
 end
 
 ----------------------------------------------------------------------

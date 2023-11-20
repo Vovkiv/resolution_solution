@@ -1,6 +1,6 @@
 local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
-  _DOCUMENTATION = "",
+  _DOCUMENTATION = "https://github.com/Vovkiv/resolution_solution/blob/main/resolution_solution_documentation.pdf",
   _VERSION = 3000,
   _LOVE = 11.4, -- love2d version for which this library designed for.
   _DESCRIPTION = "Yet another scaling library.",

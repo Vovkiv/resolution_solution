@@ -1,8 +1,10 @@
 local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
+  -- All functionality of this library documented here.
   _DOCUMENTATION = "https://github.com/Vovkiv/resolution_solution/blob/main/resolution_solution_documentation.pdf",
   _VERSION = 3001,
-  _LOVE = 11.5, -- love2d version for which this library designed.
+  -- love2d version for which this library designed.
+  _LOVE = 11.5,
   _DESCRIPTION = "Yet another scaling library.",
   _NAME = "Resolution Solution",
   _LICENSE = "The Unlicense",
@@ -38,9 +40,9 @@ For more information, please refer to <https://unlicense.org>
 --                        Library variables                         --
 ----------------------------------------------------------------------
 
--- 1 Aspect Scaling
--- 2 Stretched Scaling
--- 3 Pixel Perfect Scaling
+-- 1 Aspect Scaling.
+-- 2 Stretched Scaling.
+-- 3 Pixel Perfect Scaling.
 rs.scale_mode = 1
 
 rs.scale_width, rs.scale_height = 0, 0
@@ -105,37 +107,21 @@ rs.conf = function(options)
 end
 
 rs.push = function()
-  -- Prepare to scale.
   love.graphics.push()
-  
-  -- Reset transformation.
   love.graphics.origin()
-
-  -- Set offset.
   love.graphics.translate(rs.x_offset, rs.y_offset)
-  
-  -- Scale.
   love.graphics.scale(rs.scale_width, rs.scale_height)
 end
 
 rs.pop = function()
-  -- Stop scaling.
   love.graphics.pop()
 end
 
 rs.resize = function()
   local window_width, window_height = love.graphics.getWidth(), love.graphics.getHeight()
-
-  -- Scale for game virtual size.
   local scale_width, scale_height = 0, 0
-  
-  -- Offsets.
   local x_offset, y_offset = 0, 0
-
-  -- Virtual game size.
   local game_width, game_height = rs.game_width, rs.game_height
-  
-  -- Scale mode.
   local scale_mode = rs.scale_mode
   
   -- If we in stretch scaling mode.
@@ -146,27 +132,23 @@ rs.resize = function()
   
   -- Other scaling modes.
   else
-
-  -- Other scaling methods need to determine scale, based on window and game aspect.
+  -- Other scaling methods need to determine scale based on window and game aspects.
     local scale = math.min(window_width / game_width, window_height / game_height)
 
-    -- Pixel perfect scaling.
+    -- Pixel Perfect Scaling.
     if scale_mode == 3 then
       -- We will floor to nearest int number.
       -- And we fallback to scale 1, if game size is less then window, because when scale == 0, there nothing to see.
       scale = math.max(math.floor(scale), 1)
     end
 
-    -- Update offsets.
     x_offset, y_offset = (window_width - (scale * game_width)) / 2, (window_height - (scale * game_height)) / 2
-    -- Update scaling values.
     scale_width, scale_height = scale, scale
   end
   
-  -- Save values to library --
+  -- Write new values to library --
   
   rs.x_offset, rs.y_offset = x_offset, y_offset
-  
   rs.scale_width, rs.scale_height = scale_width, scale_height
   
   rs.game_zone.x = x_offset
@@ -183,37 +165,34 @@ end
 
 rs.resize_callback = function() end
 
-rs.debug_info = function(debugX, debugY)
-  -- Function used to render debug info on-screen.
-
+rs.debug_info = function(debug_x, debug_y)
   -- Set width and height for debug "window".
-  local debugWidth = 215
-  local debugHeight = 120
+  local debug_width, debug_height = 215, 120
 
   -- Default position is top-left corner of window.
-  debugX = debugX or 0
-  debugY = debugY or 0
+  debug_x = debug_x or 0
+  debug_y = debug_y or 0
   
   -- Do sanity check for input arguments.
-  if type(debugX) ~= "number" then
-    error(".debugFunc: 1st argument should be number or nil. You passed: " .. type(debugX) .. ".", 2)
+  if type(debug_x) ~= "number" then
+    error(".debugFunc: 1st argument should be number or nil. You passed: " .. type(debug_x) .. ".", 2)
   end
 
-  if type(debugY) ~= "number" then
-    error(".debugFunc: 2nd argument should be number or nil. You passed: " .. type(debugY) .. ".", 2)
+  if type(debug_y) ~= "number" then
+    error(".debugFunc: 2nd argument should be number or nil. You passed: " .. type(debug_y) .. ".", 2)
   end
 
   -- Save color that was used before debug function.
   local r, g, b, a = love.graphics.getColor()
 
   -- Save font that was used before debug function.
-  local oldFont = love.graphics.getFont()
+  local old_font = love.graphics.getFont()
 
   -- Draw background rectangle for text.
   love.graphics.setColor(0, 0, 0, 0.5)
   
   -- Place debug info on screen according to user input.
-  love.graphics.rectangle("fill", debugX, debugY, debugWidth, debugHeight)
+  love.graphics.rectangle("fill", debug_x, debug_y, debug_width, debug_height)
 
   -- Set color.
   love.graphics.setColor(1, 1, 1, 1)
@@ -231,13 +210,13 @@ rs.debug_info = function(debugX, debugY)
     "scale_mode: " .. tostring(rs.scale_mode) .. "\n" ..
     "x_offset: " .. tostring(rs.x_offset) .. "\n" ..
     "y_offset: " .. tostring(rs.y_offset) .. "\n",
-    debugX, debugY, debugWidth)
+    debug_x, debug_y, debug_width)
 
   -- Return previous color.
   love.graphics.setColor(r, g, b, a)
   
   -- Return previous font.
-  love.graphics.setFont(oldFont)
+  love.graphics.setFont(old_font)
 end
 
 rs.get_game_zone = function()
@@ -259,7 +238,7 @@ rs.is_it_inside = function(it_x, it_y)
     error(".is_it_inside: Argument #2 should be number. You passed: " .. type(it_y) .. ".", 2)
   end
   
-  -- If we in Stretch Scaling mode we always "inside".
+  -- If we in Stretch Scaling mode - then we always inside.
   if rs.scaleMode == 2 then
     return true
   end
@@ -280,16 +259,15 @@ rs.is_it_inside = function(it_x, it_y)
 end
 
 rs.get_both_scales = function()
-  -- Get both width and height scale.
   return rs.scale_width, rs.scale_height
 end
 
 rs.to_game = function(x, y)
-  -- User passed only X.
+  -- User passed only x.
   if type(x) == "number" and type(y) == "nil" then
     return (x - rs.x_offset) / rs.scale_width
 
-  -- User passed only Y.
+  -- User passed only y.
   elseif type(x) == "nil" and type(y) == "number" then
     return (y - rs.y_offset) / rs.scale_height
 

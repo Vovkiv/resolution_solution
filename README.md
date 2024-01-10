@@ -103,7 +103,7 @@ I will post announces when new update will be dropped [here](https://love2d.org/
 # Contacts
 If you have any questions about this library, have ideas, etc, you can contact me via:
 
-1. [You can create new issue](https://github.com/Vovkiv/resolution_solution/issues/new)
-2. [love forum](https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762)
-3. [matrix](https://matrix.to/#/@vovkiv:matrix.org)
+1. [Submit new issue](https://github.com/Vovkiv/resolution_solution/issues/new).
+2. [love forum](https://love2d.org/forums/memberlist.php?mode=viewprofile&u=169762).
+3. [matrix](https://matrix.to/#/@vovkiv:matrix.org).
 4. Email - volkovissocool@gmail.com

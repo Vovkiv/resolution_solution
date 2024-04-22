@@ -50,7 +50,7 @@ end
 ``` 
 5. Draw something:
 
-(In this example we used scissors, but there [another way](examples/basic_setup_with_canvas) to achieve this. Read [manual](resolution_solution_documentation.pdf) or check [examples](examples) for more info.)
+_(In this example we used scissors, but there [another way](examples/basic_setup_with_canvas) to achieve this. Read [manual](resolution_solution_documentation.pdf) or check [examples](examples) for more info.)_
 ```lua
 love.draw = function()
   rs.push()
@@ -97,8 +97,10 @@ By [Gunroar](https://hmmmgames.itch.io/):
 * [Rem Psycho](https://hmmmgames.itch.io/rem-psyche)
 * [Dust: Battle Beneath](https://hmmmgames.itch.io/dust-bb)
 
+If you made game/program using this library, fell free to ask via [contacts](#contacts) to add your game in this list.
+
 # Announces
-I will post announces when new update will be dropped [here](https://love2d.org/forums/viewtopic.php?t=92494).
+I will post announces when new update will be dropped [here](https://love2d.org/forums/viewtopic.php?t=92494) or will create new release here on GitHub.
 
 # Contacts
 If you have any questions about this library, have ideas, etc, you can contact me via:

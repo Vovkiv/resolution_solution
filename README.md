@@ -11,13 +11,14 @@ Resolution Solution was inspired by:
 * [PUSH](https://github.com/Ulydev/push)
 * [SimpleScale](https://github.com/tomlum/simpleScale)
 
-Other similar scaling libraries:
+Other similar scaling libraries that you might want to look into:
 
 * [Center](https://github.com/S-Walrus/center)
 * [maid64](https://github.com/adekto/maid64)
 * [love2d-pixelscale](https://github.com/DimitriBarronmore/love2d-pixelscale)
 * [CScreen](https://github.com/CodeNMore/CScreen)
 * [terebi](https://github.com/oniietzschan/terebi)
+* [FSAL](https://sourceforge.net/projects/fsal/)
 
 # Video demonstration
 

@@ -2,7 +2,7 @@ local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
   -- All functionality of this library documented here.
   _DOCUMENTATION = "https://github.com/Vovkiv/resolution_solution/blob/main/resolution_solution_documentation.pdf",
-  _VERSION = 3001,
+  _VERSION = 3002,
   -- love2d version for which this library designed.
   _LOVE = 11.5,
   _DESCRIPTION = "Yet another scaling library.",
@@ -63,17 +63,21 @@ rs.game_zone = {
 ----------------------------------------------------------------------
 
 rs.conf = function(options)
-  if type(options) ~= "table" then
-    error("configure should be table.", 2)
+  -- Sanitize.
+  if type(options) == "nil" then
+    options = {}
+  elseif type(options) ~= "table" then
+      error(".conf: 1st argument should be table or nil. You passed: " .. type(options) .. ".", 2)
   end
+  
   
   if options.game_width then
     if type(options.game_width) ~= "number" then
-      error("game_width should be number. You passed: " .. type(options.game_width) .. ".", 2)
+      error(".conf: field \'game_width\' should be number. You passed: " .. type(options.game_width) .. ".", 2)
     end
     
     if options.game_width < 0 then
-      error("game_width should be 0 or more. You passed: " .. tostring(options.game_width) .. ".", 2)
+      error(".conf: field \'game_width\' should be 0 or more. You passed: " .. tostring(options.game_width) .. ".", 2)
     end
     
     rs.game_width = options.game_width
@@ -81,11 +85,11 @@ rs.conf = function(options)
   
   if options.game_height then
     if type(options.game_height) ~= "number" then
-      error("game_height should be number. You passed: " .. type(options.game_height) .. ".", 2)
+      error(".conf: \'game_height\' should be number. You passed: " .. type(options.game_height) .. ".", 2)
     end
     
     if options.game_height < 0 then
-      error("game_height should be 0 or more. You passed: " .. tostring(options.game_height) .. ".", 2)
+      error(".conf: \'game_height\' should be 0 or more. You passed: " .. tostring(options.game_height) .. ".", 2)
     end
     
     rs.game_height = options.game_height
@@ -93,11 +97,11 @@ rs.conf = function(options)
   
   if options.scale_mode then
     if type(options.scale_mode) ~= "number" then
-      error("scale_mode should be number.", 2)
+      error(".conf: field \'scale_mode\' should be number. You passed: " .. type(options.scale_mode) .. ".", 2)
     end
     
     if options.scale_mode > 3 or options.scale_mode < 1 then
-      error("scale_mode can be only 1, 2 and 3. You passed: " .. tostring(options.scale_mode) .. ".")
+      error("conf: field \'scale_mode\' can be only 1, 2 and 3. You passed: " .. tostring(options.scale_mode) .. ".")
     end
     
     rs.scale_mode = options.scale_mode
@@ -117,8 +121,22 @@ rs.pop = function()
   love.graphics.pop()
 end
 
-rs.resize = function()
-  local window_width, window_height = love.graphics.getWidth(), love.graphics.getHeight()
+rs.resize = function(window_width, window_height)
+  -- Sanitize.
+  -- Window width.
+  if type(window_width) == "nil" then
+    window_width = love.graphics.getWidth()
+  elseif type(window_width) ~= "number" then
+    error(".resize: 1st argument should be nil or number. You passed: " .. type(window_width) .. ".")
+  end
+  
+  -- Window height.
+  if type(window_height) == "nil" then
+    window_height = love.graphics.getHeight()
+  elseif type(window_height) ~= "number" then
+    error(".resize: 2nd argument should be nil or number. You passed: " .. type(window_height) .. ".")
+  end
+  
   local scale_width, scale_height = 0, 0
   local x_offset, y_offset = 0, 0
   local game_width, game_height = rs.game_width, rs.game_height
@@ -175,11 +193,11 @@ rs.debug_info = function(debug_x, debug_y)
   
   -- Do sanity check for input arguments.
   if type(debug_x) ~= "number" then
-    error(".debugFunc: 1st argument should be number or nil. You passed: " .. type(debug_x) .. ".", 2)
+    error(".debug_info: 1st argument should be number or nil. You passed: " .. type(debug_x) .. ".", 2)
   end
 
   if type(debug_y) ~= "number" then
-    error(".debugFunc: 2nd argument should be number or nil. You passed: " .. type(debug_y) .. ".", 2)
+    error(".debug_info: 2nd argument should be number or nil. You passed: " .. type(debug_y) .. ".", 2)
   end
 
   -- Save color that was used before debug function.

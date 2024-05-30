@@ -13,7 +13,7 @@ local rs = require("resolution_solution")
 rs.conf({
     game_width = 640,
     game_height = 480,
-    scale_mode = 1
+    scale_mode = rs.ASPECT_MODE
   })
 
 -- Make window resizable.
@@ -31,18 +31,20 @@ love.graphics.setBackgroundColor(0.3, 0.5, 1)
 local game_canvas = love.graphics.newCanvas(rs.get_game_size())
 
 -- Update Resolution Solution once window size changes.
-love.resize = function()
-  rs.resize()
+love.resize = function(w, h)
+  rs.resize(w, h)
 end
 
 -- Change scaling mode at runtime.
 love.keypressed = function(key)
   if key == "f1" then
-    rs.conf({scale_mode = 1})
+    rs.conf({scale_mode = rs.ASPECT_MODE})
   elseif key == "f2" then
-    rs.conf({scale_mode = 2})
+    rs.conf({scale_mode = rs.STRETCH_MODE})
   elseif key == "f3" then
-    rs.conf({scale_mode = 3})
+    rs.conf({scale_mode = rs.PIXEL_PERFECT_MODE})
+  elseif key == "f4" then
+    rs.conf({scale_mode = rs.NO_SCALING_MODE})
   end
 end
 
@@ -57,7 +59,7 @@ love.draw = function()
   
   -- Print some hints.
   love.graphics.print("Try to resize window!", 0, 0)
-  love.graphics.print("Press F1, F2, F3 to change scale mode.", 0, 20)
+  love.graphics.print("Press F1, F2, F3, F4 to change scale mode.", 0, 20)
   
   -- Once we done with drawing, lets close canvas.
   love.graphics.setCanvas()

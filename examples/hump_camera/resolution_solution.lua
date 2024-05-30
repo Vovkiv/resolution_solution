@@ -2,7 +2,7 @@ local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
   -- All functionality of this library documented here.
   _DOCUMENTATION = "https://github.com/Vovkiv/resolution_solution/blob/main/resolution_solution_documentation.pdf",
-  _VERSION = 3002,
+  _VERSION = 3003,
   -- love2d version for which this library designed.
   _LOVE = 11.5,
   _DESCRIPTION = "Yet another scaling library.",
@@ -40,10 +40,13 @@ For more information, please refer to <https://unlicense.org>
 --                        Library variables                         --
 ----------------------------------------------------------------------
 
--- 1 Aspect Scaling.
--- 2 Stretched Scaling.
--- 3 Pixel Perfect Scaling.
 rs.scale_mode = 1
+
+-- Magic numbers for scaling mode.
+rs.ASPECT_MODE = 1
+rs.STRETCH_MODE = 2
+rs.PIXEL_PERFECT_MODE = 3
+rs.NO_SCALING_MODE = 4
 
 rs.scale_width, rs.scale_height = 0, 0
 
@@ -100,8 +103,8 @@ rs.conf = function(options)
       error(".conf: field \'scale_mode\' should be number. You passed: " .. type(options.scale_mode) .. ".", 2)
     end
     
-    if options.scale_mode > 3 or options.scale_mode < 1 then
-      error("conf: field \'scale_mode\' can be only 1, 2 and 3. You passed: " .. tostring(options.scale_mode) .. ".")
+    if options.scale_mode > 4 or options.scale_mode < 1 then
+      error("conf: field \'scale_mode\' can be only 1, 2, 3 and 4. You passed: " .. tostring(options.scale_mode) .. ".")
     end
     
     rs.scale_mode = options.scale_mode
@@ -142,30 +145,32 @@ rs.resize = function(window_width, window_height)
   local game_width, game_height = rs.game_width, rs.game_height
   local scale_mode = rs.scale_mode
   
-  -- If we in stretch scaling mode.
-  if scale_mode == 2 then
+  if scale_mode == rs.STRETCH_MODE then
     -- We only need to update width and height scale.
     scale_width = window_width / game_width
     scale_height = window_height / game_height
-  
-  -- Other scaling modes.
+
+  elseif scale_mode == rs.NO_SCALING_MODE then
+    scale_width = 1
+    scale_height = 1
+
   else
-  -- Other scaling methods need to determine scale based on window and game aspects.
+    -- Other scaling methods need to determine scale based on window and game aspects.
     local scale = math.min(window_width / game_width, window_height / game_height)
 
-    -- Pixel Perfect Scaling.
-    if scale_mode == 3 then
+    if scale_mode == rs.PIXEL_PERFECT_MODE then
       -- We will floor to nearest int number.
-      -- And we fallback to scale 1, if game size is less then window, because when scale == 0, there nothing to see.
+      -- And we fallback to scale 1, if game size is less then window,
+      -- because when scale == 0, there nothing to see.
       scale = math.max(math.floor(scale), 1)
     end
 
-    x_offset, y_offset = (window_width - (scale * game_width)) / 2, (window_height - (scale * game_height)) / 2
+    x_offset = (window_width - (scale * game_width)) / 2
+    y_offset = (window_height - (scale * game_height)) / 2
     scale_width, scale_height = scale, scale
   end
   
   -- Write new values to library --
-  
   rs.x_offset, rs.y_offset = x_offset, y_offset
   rs.scale_width, rs.scale_height = scale_width, scale_height
   
@@ -256,8 +261,8 @@ rs.is_it_inside = function(it_x, it_y)
     error(".is_it_inside: Argument #2 should be number. You passed: " .. type(it_y) .. ".", 2)
   end
   
-  -- If we in Stretch Scaling mode - then we always inside.
-  if rs.scaleMode == 2 then
+  -- If we in Stretch or No Scaling mode - then we always inside.
+  if rs.scale_mode == rs.STRETCH_MODE or rs.scale_mode == rs.NO_SCALING_MODE then
     return true
   end
   

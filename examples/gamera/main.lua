@@ -1,4 +1,4 @@
--- Gamera.lua - https://github.com/kikito/gamera, by kikito, MIT License.
+-- gamera.lua - https://github.com/kikito/gamera, by kikito, MIT License.
 -- 
 -- This is example for Resolution Solution, how you can use
 -- gamera camera library with Resolution Solution.
@@ -17,7 +17,16 @@ local rs = require("resolution_solution")
 -- Gamera should work absolutely fine with any scaling mode:
 -- Be it: Stretch, Aspect Scaling or Pixel Perfect.
 -- Try to change it to: 1, 2 and 3 and see how it goes.
-rs.conf({game_width = 640, game_height = 480, scale_mode = 1})
+--
+-- To make it work with both No Scaling mode and other modes
+-- make sure to make exception when library in no scaling mode
+-- since in it scaling won't happen and rs.game_width and rs.game_height
+-- become pretty much useless variables. 
+rs.conf({
+  game_width = 640,
+  game_height = 480,
+  scale_mode = rs.ASPECT_MODE
+  })
 -- Make window resizable.
 rs.setMode(rs.game_width, rs.game_height, {resizable = true})
 
@@ -28,15 +37,11 @@ local cam = gamera.new(0, 0, rs.game_width * 2, rs.game_height * 2)
 
 -- By default, gamera use whole window to display stuff
 -- but we will restrict it to game size.
--- As far as I understands, gamera use love.graphics.scissors
--- to limit drawing area.
--- Since we scale game to our game size, there no need for
--- gamera to draw to entire screen anyway.
 cam:setWindow(0, 0, rs.game_width, rs.game_height)
 
 -- Update resolution solution once window size changed.
 love.resize = function(w, h)
-  rs.resize()
+  rs.resize(w, h)
 end
 
 -- Create canvas that gamera will draw to.
@@ -60,14 +65,27 @@ local gamera_draw_function = function(l, t, w, h)
   love.graphics.setCanvas()
 end
 
+rs.resize_callback = function()
+  
+  if rs.scale_mode == rs.NO_SCALING_MODE then
+    gamera_canvas = love.graphics.newCanvas(love.graphics.getWidth(), love.graphics.getHeight())
+  end
+end
+
 -- Change scaling mode at runtime.
 love.keypressed = function(key)
   if key == "f1" then
-    rs.conf({scale_mode = 1})
+    rs.conf({scale_mode = rs.ASPECT_MODE})
+    gamera_canvas = love.graphics.newCanvas(rs.game_width, rs.game_height)
   elseif key == "f2" then
-    rs.conf({scale_mode = 2})
+    rs.conf({scale_mode = rs.STRETCH_MODE})
+    gamera_canvas = love.graphics.newCanvas(rs.game_width, rs.game_height)
   elseif key == "f3" then
-    rs.conf({scale_mode = 3})
+    rs.conf({scale_mode = rs.PIXEL_PERFECT_MODE})
+    gamera_canvas = love.graphics.newCanvas(rs.game_width, rs.game_height)
+  elseif key == "f4" then
+    rs.conf({scale_mode = rs.NO_SCALING_MODE})
+    gamera_canvas = love.graphics.newCanvas(love.graphics.getWidth(), love.graphics.getHeight())
   end
   -- IMPORTANT NOTE:
   -- If you planning to implement scaling mode switching during runtime
@@ -87,6 +105,12 @@ love.keypressed = function(key)
 end
 
 love.update = function(dt)
+  if rs.scale_mode == rs.NO_SCALING_MODE then
+    cam:setWindow(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+  else
+    cam:setWindow(0, 0, rs.game_width, rs.game_height)
+  end
+
   -- Quick example how you can move camera around.
   local current_x, current_y = cam:getPosition()
   local speed = 100
@@ -128,7 +152,7 @@ love.draw = function()
     -- Hint that you can move around and resize window and switch scaling mode.
     love.graphics.print("Use WASD to move camera around.", 0, 40)
     love.graphics.print("Also try to resize window.", 0, 60)
-    love.graphics.print("Press F1, F2, F3 to change scale mode.", 0, 80)
+    love.graphics.print("Press F1, F2, F3, F4 to change scale mode.", 0, 80)
     -- Stop scaling.
   rs.pop()
   

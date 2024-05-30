@@ -15,7 +15,7 @@ local rs = require("resolution_solution")
 rs.conf({
     game_width = 640,
     game_height = 480,
-    scale_mode = 1
+    scale_mode = rs.ASPECT_MODE
   })
 
 -- Make window resizable.
@@ -24,7 +24,7 @@ rs.setMode(rs.game_width, rs.game_height, {resizable = true})
 -- Change "black" bars color to blue.
 love.graphics.setBackgroundColor(0.3, 0.5, 1)
 
--- Data for rectngle button.
+-- Data for rectangle button.
 local rectangle_button_frame = {}
 local rectangle_button_font
 local rectangle_is_touching = false
@@ -38,17 +38,19 @@ local game_canvas = love.graphics.newCanvas(rs.get_game_size())
 -- Change scaling mode at runtime.
 love.keypressed = function(key)
   if key == "f1" then
-    rs.conf({scale_mode = 1})
+    rs.conf({scale_mode = rs.ASPECT_MODE})
   elseif key == "f2" then
-    rs.conf({scale_mode = 2})
+    rs.conf({scale_mode = rs.STRETCH_MODE})
   elseif key == "f3" then
-    rs.conf({scale_mode = 3})
+    rs.conf({scale_mode = rs.PIXEL_PERFECT_MODE})
+  elseif key == "f4" then
+    rs.conf({scale_mode = rs.NO_SCALING_MODE})
   end
 end
 
 -- Update Resolution Solution once window size changes.
-love.resize = function()
-  rs.resize()
+love.resize = function(w, h)
+  rs.resize(w, h)
 end
 
 -- This function called after rs.resize done it's things
@@ -104,7 +106,7 @@ love.draw = function()
   
   -- Print some hints.
   love.graphics.print("Try to resize window and see that string remains crispy!", 0, 0)
-  love.graphics.print("Press F1, F2, F3 to change scale mode.", 0, 20)
+  love.graphics.print("Press F1, F2, F3, F4 to change scale mode.", 0, 20)
   love.graphics.print("Try to touch rectangle with cursor.", 0, 40)
   
   -- Once we done with drawing, lets close canvas.
@@ -140,5 +142,10 @@ love.draw = function()
   love.graphics.setColor(1, 1, 1)
   
   -- Draw rectangle.
-  love.graphics.rectangle("line", rectangle_button_frame.x, rectangle_button_frame.y, rectangle_button_frame.w, rectangle_button_frame.h)
+  love.graphics.rectangle("line",
+    rectangle_button_frame.x,
+    rectangle_button_frame.y,
+    rectangle_button_frame.w,
+    rectangle_button_frame.h
+  )
 end

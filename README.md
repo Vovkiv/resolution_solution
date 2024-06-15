@@ -70,6 +70,7 @@ end
 * [.pdf manual](resolution_solution_documentation.pdf).
 * [.odt manual](resolution_solution_documentation.odt).
 * [.love demo example that you can run](demo.love).
+* [Demo folder that you can run](demo) with `cd demo; love .`
 * [examples folder](examples).
 
 # Selling points of this library

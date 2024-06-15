@@ -34,7 +34,7 @@ local rs = require("resolution_solution")
 2. Configure library:
 
 ```lua
-rs.conf({game_width = 640, game_height = 480, scale_mode = 3})
+rs.conf({game_width = 640, game_height = 480, scale_mode = rs.PIXEL_PERFECT_MODE})
 ```
 
 3. Make window resizable (optionally, but stongly advised):

@@ -73,16 +73,17 @@ end
 * [examples folder](examples).
 
 # Selling points of this library
-* Library have 3 scale modes and you can switch between at any time:
+* Library have 4 scale modes and you can switch between at any time:
   1. Aspect Scaling mode - scaling with preserved aspect.
   2. Stretching - stretch game to fill entire window.
   3. Pixel Perfect - will scale, using only integer scale factors and adds black bars if it can't. Must-have for pixel-art.
+  4. No Scale - as name suggests, nothing will be scalled. Might be useful for debugging or if you make some kind of program (e.g, game engine) where you need to switch between scaling for game itself and no scaling when user editing game scripts.
 
-* Library doesn't force you to use any specific way to scale your content, unlike some libraries. You can choose canvas, scissors, draw rectangles on top of game, shader, etc.
-* Library written with [kikito's guide](https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/) in mind, which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: `rs.game_width`, `rs.scale_mode`, `rs.game_zone.x`, etc.
-* Library has [.pdf manual](resolution_solution_documentation.pdf), that includes some illustrations, examples, explanations, tips and tricks.
-* Written with `snake_case`.
-* Library licensed under [`The Unlicense`](LICENSE). Do whatever you want with it.
+* Library doesn't force you to use any specific way to scale your content, unlike some libraries. You can choose canvas, scissors, draw rectangles on top of game, shader, etc. Pick whatever you like!
+* Library written with [kikito's guide](https://web.archive.org/web/20190406163041/http://kiki.to/blog/2014/03/30/a-guide-to-authoring-lua-modules/) in mind, which resulted in very monkey-patchable library! No unreachable locals, no globals, nothing like that! Everything that library produces during calculations can be reached by simple accessing library table: `rs.game_width`, `rs.scale_mode`, `rs.game_zone.x`, etc. Hack and slash your way to make library suitable for your game!
+* Library has [.pdf manual](resolution_solution_documentation.pdf), that includes some illustrations, examples, explanations, tips and tricks. Single file documentation, that can be opened in almost anything, including your browser!
+* Written with `snake_case`. Before it was camelCase.
+* Library licensed under [`The Unlicense`](LICENSE). Do whatever you want with it with no restrictions!
 
 # Games made using this library
 By togfoxy:

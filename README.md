@@ -98,6 +98,11 @@ By [Gunroar](https://hmmmgames.itch.io/):
 * [YOU ARE DRAGON](https://hmmmgames.itch.io/dragon)
 * [Rem Psycho](https://hmmmgames.itch.io/rem-psyche)
 * [Dust: Battle Beneath](https://hmmmgames.itch.io/dust-bb)
+* [Joycoin](https://hmmmgames.itch.io/coingame)
+
+By [Saxashitter](https://github.com/Saxashitter):
+
+* [UNSTOPPABLE-FUCK-Poyo-and-the-Refill-Mart](https://github.com/Saxashitter/UNSTOPPABLE-FUCK-Poyo-and-the-Refill-Mart/)
 
 If you made game/program using this library, fell free to ask via [contacts](#contacts) to add your game in this list.
 

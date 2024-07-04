@@ -46,7 +46,7 @@ rs.setMode(rs.game_width, rs.game_height, {resizable = true})
 4. Hook into `love.resize`:
  ```lua
 love.resize = function(w, h)
-   rs.resize()
+   rs.resize(w, h)
 end
 ``` 
 5. Draw something:

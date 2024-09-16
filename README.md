@@ -19,6 +19,7 @@ Other similar scaling libraries that you might want to look into:
 * [CScreen](https://github.com/CodeNMore/CScreen)
 * [terebi](https://github.com/oniietzschan/terebi)
 * [FSAL](https://sourceforge.net/projects/fsal/)
+* [gb-screen](https://github.com/darkfrei/gb-screen)
 
 # Video demonstration
 

@@ -4,6 +4,7 @@ local rs = {
   -- All functionality of this library documented here.
   _DOCUMENTATION = "https://github.com/Vovkiv/resolution_solution/blob/main/resolution_solution_documentation.pdf",
   _VERSION = 3003,
+  _VERSION = 3004,
   -- love2d version for which this library designed.
   _LOVE = 11.5,
   _DESCRIPTION = "Yet another scaling library.",

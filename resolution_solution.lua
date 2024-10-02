@@ -3,7 +3,6 @@ local rs = {
   _URL = "https://github.com/Vovkiv/resolution_solution",
   -- All functionality of this library documented here.
   _DOCUMENTATION = "https://github.com/Vovkiv/resolution_solution/blob/main/resolution_solution_documentation.pdf",
-  _VERSION = 3003,
   _VERSION = 3004,
   -- love2d version for which this library designed.
   _LOVE = 11.5,
@@ -81,7 +80,7 @@ rs.game_zone = {
 --- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 3
+---   scale_mode = rs.PIXEL_PERFECT_MODE
 --- })
 --- ```
 ---@param options table?
@@ -140,7 +139,7 @@ end
 --- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 1
+---   scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -175,7 +174,7 @@ end
 --- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 1
+---   scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -211,7 +210,7 @@ end
 --- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 1
+---   scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -298,7 +297,7 @@ end
 -- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 1
+---   scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -444,7 +443,7 @@ end
 --- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 1
+---   scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -541,7 +540,7 @@ end
 --- rs.conf({
 ---   game_width = 640,
 ---   game_height = 480,
----   scale_mode = 1
+---   scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -606,7 +605,7 @@ end
 --- rs.conf({
 ---    game_width = 640,
 ---    game_height = 480,
----    scale_mode = 1
+---    scale_mode = rs.ASPECT_MODE
 --- })
 --- love.graphics.setBackgroundColor(0.3, 0.5, 1)
 --- rs.setMode(rs.game_width, rs.game_height, {resizable = true})
@@ -686,7 +685,7 @@ end
 --- ```lua
 --- -- Basic usage.
 --- rs = require("resolution_solution")
---- rs.conf({game_width = 800, game_height = 600, scale_mode = 3})
+--- rs.conf({game_width = 800, game_height = 600, scale_mode = rs.PIXEL_PERFECT_MODE})
 --- rs.setMode(rs.get_game_size(), select(3, love.window.getMode()))
 -- -- Done, now we initialized game with 800x600 game size and resized window to be same as game width and height.
 --- ```
@@ -721,7 +720,8 @@ end
 --- rs.conf({
 ---          game_width = 800,
 ---          game_height = 600,
----          scale_mode = 3})
+---          scale_mode = rs.PIXEL_PERFECT_MODE
+--- })
 --- -- We want to create game with 800x600 resolution
 --- -- But we also want to change window size to be same as game.
 --- -- To achieve this, we can do...

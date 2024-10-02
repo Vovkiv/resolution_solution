@@ -86,7 +86,7 @@ end
 * Library has [.pdf manual](resolution_solution_documentation.pdf), that includes some illustrations, examples, explanations, tips and tricks. Single file documentation, that can be opened in almost anything, including your browser!
 * Written with `snake_case`. Before it was camelCase.
 * Library licensed under [`The Unlicense`](LICENSE). Do whatever you want with it with no restrictions!
-* To visualize the type annotations, it's necessary to specify the type of the variable where you stored the library with `---@type ResolutionSolution.`
+* This library supports type annotations in VSCode. To make it work, you need to use `---@type ResolutionSolution`.
 
 **Example:**
 ```lua

@@ -43,7 +43,7 @@ For more information, please refer to <https://unlicense.org>
 
 rs.scale_mode = 1
 
--- Magic numbers for scaling mode.
+-- Constants for scaling modes.
 rs.ASPECT_MODE = 1
 rs.STRETCH_MODE = 2
 rs.PIXEL_PERFECT_MODE = 3
@@ -673,6 +673,7 @@ end
 --- This function is a wrapper for love.window.setMode() that should be used with this library. See 
 --- the Love2d wiki page for information about love.window.setMode():
 --- https://love2d.org/wiki/love.window.setMode
+--- The reason for this, is that love.window.setMode won't trigger love.resize callback.
 --- 
 --- **For advanced users:**
 --- ```lua
@@ -693,8 +694,6 @@ end
 ---@param height number
 ---@param flags table
 rs.setMode = function(width, height, flags)
-  -- Wrapper for love.window.setMode()
-
   local okay, errorMessage = pcall(love.window.setMode, width, height, flags)
   if not okay then
     error(".setMode: Error: " .. errorMessage, 2)
@@ -705,6 +704,7 @@ end
 
 --- This function is a wrapper for love.window.updateMode() that should be used with this library. 
 --- See the Love2d wiki page for information about love.window.updateMode(): https://love2d.org/wiki/love.window.updateMode
+--- The reason for this, is that love.window.updateMode won't trigger love.resize callback.
 --- 
 --- **For advanced users:**
 --- ```lua
@@ -733,8 +733,6 @@ end
 ---@param height number
 ---@param flags table
 rs.updateMode = function(width, height, flags)
-  -- Wrapper for love.window.updateMode()
-  
   local okay, errorMessage = pcall(love.window.updateMode, width, height, flags)
   if not okay then
     error(".updateMode: Error: " .. errorMessage, 2)

@@ -86,6 +86,12 @@ end
 * Library has [.pdf manual](resolution_solution_documentation.pdf), that includes some illustrations, examples, explanations, tips and tricks. Single file documentation, that can be opened in almost anything, including your browser!
 * Written with `snake_case`. Before it was camelCase.
 * Library licensed under [`The Unlicense`](LICENSE). Do whatever you want with it with no restrictions!
+* This library supports type annotations in VSCode. To make it work, you need to use `---@type ResolutionSolution`.
+
+**Example:**
+```lua
+rs = require("resolution_solution") ---@type ResolutionSolution
+```
 
 # Games made using this library
 By togfoxy:

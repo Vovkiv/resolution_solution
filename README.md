@@ -20,6 +20,7 @@ Other similar scaling libraries that you might want to look into:
 * [terebi](https://github.com/oniietzschan/terebi)
 * [FSAL](https://sourceforge.net/projects/fsal/)
 * [gb-screen](https://github.com/darkfrei/gb-screen)
+* [lovesize](https://github.com/RicardoBusta/lovesize)
 
 # Video demonstration
 
